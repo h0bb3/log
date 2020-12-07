@@ -6,7 +6,7 @@ author: "h0bb3"
 
 When writing automatic tests for code I often find myself wanting to create test cases for protected or private methods. While this can be considered a "test smell" I find it somewhat common in practice.
 
-Making the method public could be an option but this has always bugged me a bit as it requires change of the original code and of course a larger public interface. The other way is to use some funky reflexion type code i.e. `class.getDeclaredMethod()` which is also a bit wonky imho. I recently stumbled on another way you can do this. Simply create an inner class inheriting from the class under test. Inner class methods are all visible to the outer class and protected methods will therefore be accessible as ususal. You can create the class in the method or in the class delcaration itself.
+Making the method public could be an option but this has always bugged me a bit as it requires change of the original code and of course a larger public interface. The other way is to use some funky reflexion type code i.e. `class.getDeclaredMethod()` which is also a bit wonky imho. I recently stumbled on another way you can do this. Simply create an inner class inheriting from the class under test. Inner class methods are all visible to the outer class and protected methods will therefore be accessible as ususal. You can create the class in the method or in the class declaration itself.
 
 ```
 public class SUTClass {
