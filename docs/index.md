@@ -5,6 +5,7 @@ You can use the [editor on GitHub](https://github.com/tobias-dv-lnu/log/edit/mai
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
 
+## All the posts in the log
 <ul>
   {% for post in site.posts %}
     <li>
