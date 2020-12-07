@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "Test Private and Protected Methods in Java"
+title:  "How to Test Private and Protected Methods in Java"
+author: "h0bb3"
 ---
 
-# How to Test Private and Protected Methods in Java
 When writing automatic tests for code I often find myself wanting to create test cases for protected or private methods. While this can be considered a "test smell" I find it somewhat common in practice.
 
 While making the method public could be an option this has always bugged me a bit. The other way is to use some funky reflexion type code i.e. `class.getDeclaredMethod()` which is also a bit wonky imho. I recently stumbled on another way you can do this. Simply create an inner class inheriting from the class under test. Inner class methods are all visible to the outer class and protected methods will therefore be accessible as ususal. You can create the class in the method or in the class delcaration itself.
