@@ -1,1 +1,4 @@
 theme: jekyll-theme-hacker
+baseurl: log/
+url: "tobias-dv-lnu.github.io"
+permalink: /:title     #this actually works now, it didn't for me last time, not sure why
