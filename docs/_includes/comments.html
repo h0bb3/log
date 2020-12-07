@@ -137,9 +137,9 @@
                             class="comment-meta comment-username"
                             >${user.login}</a
                         >
-                        <div class="comment-meta comment-date-posted">commented&nbsp;<time datetime="${comment.created_at}">${datePosted}</time></div>
-                        ${postedByAuthor ? '<span class="comment-meta tag comment-author-badge">Author</span>' : ''}
-                        ${edited ? `<span class="comment-meta comment-edited">Edited</span>` : ''}
+                        <span class="comment-meta comment-date-posted">&nbsp;commented&nbsp;<time datetime="${comment.created_at}">${datePosted}</time></span>
+                        ${postedByAuthor ? '<span class="comment-meta tag comment-author-badge">&nbsp;Author</span>' : ''}
+                        ${edited ? `<span class="comment-meta comment-edited">&nbsp;Edited</span>` : ''}
                     </header>
                     <div class="comment-body">${body}</div>
                 </li>`;
