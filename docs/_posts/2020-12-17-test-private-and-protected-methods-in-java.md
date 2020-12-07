@@ -15,7 +15,9 @@ public class SUTClass {
     return true;
   }
 }
+```
 
+```
 public class SUTClass_Test {
 
   public sutMethod_test() {
@@ -42,20 +44,21 @@ public class SUTClass {
     return true;
   }
 }
+```
 
+```
 public class SUTClass_Test {
   private static class SUT extends SUTClass {
-    
-      private boolean privateSutMethod() {
-        try {
-                Method sutMethod = SUTClass.class.getDeclaredMethod("privateSutMethod");
-                sutMethod.setAccessible(true);
-                return (String)sutMethod.invoke(this, a_to, a_froms);
-            } catch (Exception e) {
-                assertEquals(true, false);
-            }
-            return null;
+    private boolean privateSutMethod() {
+      try {
+        Method sutMethod = SUTClass.class.getDeclaredMethod("privateSutMethod");
+        sutMethod.setAccessible(true);
+        return (String)sutMethod.invoke(this, a_to, a_froms);
+      } catch (Exception e) {
+        assertEquals(true, false);
       }
+      return null;
+    }
   }
 
   public sutMethod_test() {
