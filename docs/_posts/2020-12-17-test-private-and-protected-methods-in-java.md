@@ -2,6 +2,7 @@
 layout: post
 title:  "How to Test Private and Protected Methods in Java"
 author: "h0bb3"
+comments_id: 1
 ---
 
 When writing automatic tests for code I often find myself wanting to create test cases for protected or private methods. While this can be considered a "test smell" I find it somewhat common in practice.
