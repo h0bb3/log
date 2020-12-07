@@ -29,7 +29,7 @@ public class SUTClass_Test {
 }
 ```
 
-I found this quite elegant and removes the need for clunky wrapper methods.. If you have `private` methods you have to do the funky reflexion style thing. Possibly the inner `SUT class` provides a nice spot to add this and not pollute the test method:
+I found this quite elegant and removes the need for clunky wrapper methods. If you have `private` methods you have to do the funky reflexion style thing. Possibly the inner `SUT class` provides a nice spot to add this and not pollute the test method:
 
 ```
 public class SUTClass {
