@@ -3,6 +3,7 @@ layout: post
 title:  "MagicInvoker - a Helper to Invoke Private Methods in Java"
 author: "h0bb3"
 comments_id: 2
+tags: "java magicinvoker testing reflection"
 ---
 
 As I like procrastinating and programming I have spent a lot of time (well like a day) coding a helper class for magically invoking private methods in Java. It builds on the idea that outer classes have access to inner classes private methods. This gives us an elegant solution (imho) to the problem. Well we do need to use some reflexion and that is always messy, fortunately this can be all hidden away in the [`MagicInvoker class`](https://github.com/tobias-dv-lnu/s4rdm3x/blob/NBWeights/src/test/java/se/lnu/siq/s4rdm3x/MagicInvoker.java).
