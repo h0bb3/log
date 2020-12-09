@@ -5,7 +5,7 @@ author: "h0bb3"
 comments_id: 2
 ---
 
-As I like procrastinating and programming I have spent a lot of time (well like a day) coding a helper class for magically invoking private methods in Java. It builds on the idea that outer classes have access to inner classes private methods. This gives us an elegant solution (imho) to the problem. Well we do need to use some reflexion and that is always messy, fortunately this can be all hidden away in the MagicInvoker class.
+As I like procrastinating and programming I have spent a lot of time (well like a day) coding a helper class for magically invoking private methods in Java. It builds on the idea that outer classes have access to inner classes private methods. This gives us an elegant solution (imho) to the problem. Well we do need to use some reflexion and that is always messy, fortunately this can be all hidden away in the [`MagicInvoker class`](https://github.com/tobias-dv-lnu/s4rdm3x/blob/NBWeights/src/test/java/se/lnu/siq/s4rdm3x/MagicInvoker.java).
 
 The basic use case is that you have a class with a private method and you want to test that method for some reason.
 
@@ -43,6 +43,6 @@ So the [`invokeMethodMagic`](https://github.com/tobias-dv-lnu/s4rdm3x/blob/e7ea1
 
 One gotcha is that you need to supply the object to call the method on (not that surprising) however there seem to be no way to get the calling object via reflexion (not that I have found at least, let me know if there is). I decided to inject this in the constructor as the [`invokeMethodMagic`](https://github.com/tobias-dv-lnu/s4rdm3x/blob/e7ea12a24c348fe2842f302b10d34bb4c6fad7ed/src/test/java/se/lnu/siq/s4rdm3x/MagicInvoker.java#L76) takes a vararg it is simply too easy to forget to add it and strange things will happen.
 
-Another gothca is that while it may look like you are overriding the private method, this is not actually how it works and you can unfortunately not use the `@Override` annotation to make sure you are actually using the correct method signature.
+Another gothca is that while it may look like you are overriding the private method, this is not actually how it works and you can unfortunately not use the `@Override` annotation to make sure you are using the correct method signature.
 
 [Check out the source of MagicInvoker](https://github.com/tobias-dv-lnu/s4rdm3x/blob/NBWeights/src/test/java/se/lnu/siq/s4rdm3x/MagicInvoker.java). 
