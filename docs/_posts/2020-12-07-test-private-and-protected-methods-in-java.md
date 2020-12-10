@@ -10,7 +10,7 @@ When writing automatic tests for code I often find myself wanting to create test
 
 Making the method public could be an option but this has always bugged me a bit as it requires change of the original code and of course a larger public interface. The other way is to use some funky reflexion type code i.e. `class.getDeclaredMethod()` which is also a bit wonky imho. I recently stumbled on another way you can do this. Simply create an inner class inheriting from the class under test. Inner class methods are all visible to the outer class and protected methods will therefore be accessible as ususal. You can create the class in the method or in the class declaration itself.
 
-```
+```java
 public class SUTClass {
 
   protected boolean sutMethod() {
@@ -19,7 +19,7 @@ public class SUTClass {
 }
 ```
 
-```
+```java
 public class SUTClass_Test {
 
   public sutMethod_test() {
@@ -35,7 +35,7 @@ public class SUTClass_Test {
 
 I found this quite elegant and removes the need for clunky wrapper methods. If you have `private` methods you have to do the funky reflexion style thing. Possibly the inner `class SUT` provides a nice spot to add this and not pollute the test method:
 
-```
+```java
 public class SUTClass {
 
   protected boolean sutMethod() {
@@ -48,7 +48,7 @@ public class SUTClass {
 }
 ```
 
-```
+```java
 public class SUTClass_Test {
   private static class SUT extends SUTClass {
     private boolean privateSutMethod() {
