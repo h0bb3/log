@@ -10,7 +10,7 @@ As I like procrastinating and programming I have spent a lot of time (well like 
 
 The basic use case is that you have a class with a private method and you want to test that method for some reason.
 
-```
+```java
 public class Foo {
   private String imPrivate(String a_s1, String a_s2) {
     return a_s1 + " " + a_s2;
@@ -20,7 +20,7 @@ public class Foo {
 
 The test class itself will then look like this when using the [`MagicInvoker`](https://github.com/tobias-dv-lnu/s4rdm3x/blob/NBWeights/src/test/java/se/lnu/siq/s4rdm3x/MagicInvoker.java) helper.
 
-```
+```java
 public class FooTest {
   @Test
   public imPrivate_test(String a_s1, String a_s2) {
