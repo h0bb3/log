@@ -2,7 +2,8 @@
 layout: default
 ---
 
-<h1>{{ page.title }}</h1>
+<div class="post">
+<div class="post-title">{{ page.title }}</div>
 
 {% if page.description != null %}
   <noscript>
@@ -41,3 +42,4 @@ layout: default
   document.getElementById('animated-post-description').style.display = 'initial';
   typeWriter();
 </script>
+<div class="post">
