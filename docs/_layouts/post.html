@@ -12,14 +12,10 @@ layout: default
   </noscript>
   <div id="animated-post-description" class="post-description" style="display: none;"></div>
   {% endif %}
-{{content}}
-
-<noscript>
-    <div class="post-description">Hello World</div>
-  </noscript>
-  <div id="animated-post-description" class="post-description" style="display: none;"></div>
 
 <p class="view">by {{ page.author | default: site.author }}</p>
+{{content}}
+
 
 {% if page.tags %}
   <small>tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
