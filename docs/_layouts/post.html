@@ -5,7 +5,7 @@ layout: default
 <small>{{ page.date | date: "%-d %B %Y" }}</small>
 <h1>{{ page.title }}</h1>
 
-<p class="view">by {{ page.author | default: site.author }}</p>
+
 {% if page.description != null %}
   <noscript>
     <div class="post-description">{{ page.description }}</div>
@@ -14,6 +14,13 @@ layout: default
   {% endif %}
 {{content}}
 
+<noscript>
+    <div class="post-description">Hello World</div>
+  </noscript>
+  <div id="animated-post-description" class="post-description" style="display: none;"></div>
+
+<p class="view">by {{ page.author | default: site.author }}</p>
+
 {% if page.tags %}
   <small>tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
 {% endif %}
@@ -21,3 +28,22 @@ layout: default
 {% if page.comments_id %}
     {% include comments.html issue_id=page.comments_id %}
 {% endif %}
+
+
+{% assign animation_speed = site.dash.animation_speed | default: 50 %}
+<script>
+  let i = 0;
+  const text = '{{ page.description }}';
+  const speed = parseInt('{{ animation_speed }}');
+  
+  function typeWriter() {
+    if (i < text.length) {
+      document.getElementById('animated-post-description').innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    }
+  }
+
+  document.getElementById('animated-post-description').style.display = 'initial';
+  typeWriter();
+</script>
