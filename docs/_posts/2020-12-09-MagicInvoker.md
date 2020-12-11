@@ -32,7 +32,7 @@ public class FooTest {
       // override the method under test and forward the call to the magic invoker
       private String imPrivate(String a_s1, String a_s2) {
         MagicInvoker mi(this);
-        return (String)mi.(a_s1, a_s2);
+        return (String)mi.invokeMagic(a_s1, a_s2);
       }
     }
     
