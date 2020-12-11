@@ -5,4 +5,4 @@ issues_repo: tobias-dv-lnu/log
 
 # jekyll-paginate
 paginate: 5
-paginate_path: "/log/page:num/"
+paginate_path: "/docs/page:num/"
