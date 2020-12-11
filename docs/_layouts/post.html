@@ -11,7 +11,7 @@ layout: default
   <div id="animated-post-description" class="post-description" style="display: none;"></div>
   {% endif %}
 
-<p class="view"><small>Published {{ page.date | date: "%-d %B %Y" }} by {{ page.author | default: site.author }}</small></p>
+<div class="post-date">Published {{ page.date | date: "%-d %B %Y" }} by {{ page.author | default: site.author }}</div>
 {{content}}
 
 
