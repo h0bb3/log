@@ -1,3 +1,4 @@
-theme: jekyll-theme-hacker
+#theme: jekyll-theme-hacker
+remote_theme: bitbrain/jekyll-dash
 baseurl: /log
 issues_repo: tobias-dv-lnu/log
