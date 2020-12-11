@@ -1,6 +1,7 @@
 ---
 layout: post
-title:  "MagicInvoker - a Helper to Invoke Private Methods in Java"
+title:  "MagicInvoker"
+description: "A Helper to Invoke Private Methods in Java"
 author: "h0bb3"
 comments_id: 2
 tags: "java magicinvoker testing reflection"
