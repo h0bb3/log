@@ -2,3 +2,7 @@
 remote_theme: bitbrain/jekyll-dash
 baseurl: /log
 issues_repo: tobias-dv-lnu/log
+
+# jekyll-paginate
+paginate: 5
+paginate_path: "/blog/page:num/"
