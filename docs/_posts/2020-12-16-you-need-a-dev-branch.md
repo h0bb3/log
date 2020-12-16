@@ -6,7 +6,7 @@ author: "h0bb3"
 comments_id: 7
 tags: "git github development"
 ---
-I'm working on a project with the ultimate goal to [automatically assign a source code file to an architectural module](https://github.com/tobias-dv-lnu/s4rdm3x). This is a proper research project and currently it is under review for [the Journal of Open Source Software](https://joss.theoj.org/). Reviews for a scientific journal are a lenghty process normally and in the times of CoViD19 they are even longer. In addition I was not really sure about when reviewers would take a peek at my code and start messing around. Basically my master branch was locked and I was really hesitant to make any changes to it.
+I'm working on a project with the ultimate goal to [automatically assign a source code file to an architectural module](https://tobias-dv-lnu.github.io/s4rdm3x/). This is a proper research project and currently it is under review for [the Journal of Open Source Software](https://joss.theoj.org/). Reviews for a scientific journal are a lenghty process normally and in the times of CoViD19 they are even longer. In addition I was not really sure about when reviewers would take a peek at my code and start messing around. Basically my master branch was locked and I was really hesitant to make any changes to it.
 
 At the same time I had many new ideas I wanted to try and I did not want to create one big fat branch to work on everything in. I wanted one branch per feature/bug/idea (a.k.a. Feature Branching)so I can work on many things from fixes to entierly new ideas (that may turn out to be nothing). But as master was locked down what should I merge my feature branches to?!
 
