@@ -25,9 +25,9 @@ description: Mostly rants on software development and coding, you have been warn
             {% else %}
               {{ post.date | date: "%b %-d, %Y" }}
             {% endif %}
-            {% if site.show_excerpts == true %}
+            {% if post.description != null %}
               <div class="post-excerpt">
-                {{ post.content | strip_html | truncatewords: 50 }}
+                {{ post.description }}
               </div>
             {% endif %}
           </div>
