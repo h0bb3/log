@@ -3,6 +3,7 @@ layout: post
 title:  "How to Test Private and Protected Methods in Java"
 author: "h0bb3"
 comments_id: 1
+description: "Bending the rules for a greater good"
 tags: "java magicinvoker testing reflection"
 ---
 
