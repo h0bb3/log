@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "More onCode Quality as Test Cases"
+title:  "More on Code Quality as Test Cases"
 author: "h0bb3"
 comments_id: 10
 description: "now with added code... creamy..."
