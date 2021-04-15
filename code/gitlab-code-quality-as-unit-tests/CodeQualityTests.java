@@ -1,3 +1,5 @@
+// This work is licensed under a CC BY 4.0 license. https://creativecommons.org/licenses/by/4.0/
+
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
