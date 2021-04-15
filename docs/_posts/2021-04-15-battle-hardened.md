@@ -10,4 +10,4 @@ A while back I commited tha lastest(?) version of the [buildpipeline for handlin
 
 This version has now been battle hardened in about 100 projects in our java OOP course, it should be farily stable by now but you never know.
 
-I should probably add a CC licence header to it.
+Added a CC licence header to it.
