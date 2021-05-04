@@ -18,9 +18,7 @@ answers to five pages at most.
 
 ## 1 Overall
 My employment is 100% of full time.
-Please list your highest academic degrees (bachelor, master, doctorate) and when it
-was awarded. Indicate if you are a docent or professor (or have applied to be assessed as
-such).
+Please list your highest academic degrees (bachelor, master, doctorate) and when it was awarded. Indicate if you are a docent or professor (or have applied to be assessed as such).
 
 ### 1.1 My ability to achieve good, high-quality results is {{GRADE}}
 Motivate your assessment with examples, using the following criteria:
@@ -28,8 +26,7 @@ Motivate your assessment with examples, using the following criteria:
 * Structure and organize my work
 * Carry out work as agreed
 
-### 1.2 My ability to cooperate and contribute towards a good working
-environment is {{GRADE}}
+### 1.2 My ability to cooperate and contribute towards a good working environment is {{GRADE}}
 Motivate your assessment with examples, using the following criteria:
 * Contribute towards an open, permissive working climate
 * Treat colleagues and students with respect
@@ -44,17 +41,15 @@ Motivate your assessment with examples, using the following criteria:
 * Contribute towards the development of university-wide issues
 
 ## 2 Education
-During the revision period, my involvement in education was {{INT}} % (on average).
+During the revision period, my involvement in education was 55% (on average).
 
-### 2.1 My ability to implement, develop and lead high-quality teaching is
-{{GRADE}}
+### 2.1 My ability to implement, develop and lead high-quality teaching is {{GRADE}}
 Motivate your assessment with examples, using the following criteria:
 * Structure and organize the subject’s knowledge area in courses and my teaching
 * Plan and carry out teaching
 * Supervise students/doctoral students
 
-### 2.2 My ability to create a commitment to and an interest in the subject is
-{{GRADE}}
+### 2.2 My ability to create a commitment to and an interest in the subject is {{GRADE}}
 Motivate your assessment with examples, using the following criteria:
 * Motivate students to participate actively in courses/teaching
 * Motivate students to take a critical attitude
@@ -73,7 +68,7 @@ Motivate your assessment with examples, using the following criteria:
 Describe how you used your competency development to improve your education or educational skills.
 
 ## 3 Research
-During the revision period, my involvement in research was {{INT}} % (on average).
+During the revision period, my involvement in research was 45% (on average).
 
 ### 3.1 My ability to carry out high-quality research is {{GRADE}}
 Motivate your assessment with examples, using the following criteria:
@@ -100,8 +95,7 @@ Describe how you used your competency development to do research.
 * Publish in popular science publications
 * Participate in public debate on issues relating to education and research
 * Participate in public education
-* Participate in initiatives to develop contact with industry, the public sector, and
-the cultural sector
+* Participate in initiatives to develop contact with industry, the public sector, and the cultural sector
 
 ## 5 Services to the department, faculty, and university
 During the revision period, my involvement in administration/other was {{INT}} % (on average).
