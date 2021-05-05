@@ -8,7 +8,7 @@ tags: "work"
 ---
 Use the following headings to self-evaluate your work performance for the revision period. Please reflect on your performance and be as honest as possible. Provide clear examples when possible and attach any additional documents, such as evaluations, that you think are relevant. Make sure to emphasize both your performance and what you
 have done to improve it.
-Replace {{INT}} with an integer, e.g., 20. Use the following scale to {{GRADE}} your performance: inadequate, adequate, satisfactory, good, very good, or excellent.
+Use the following scale to grade your performance: inadequate, adequate, satisfactory, good, very good, or excellent.
 Please submit this document at least 24 hours before your appraisal talk. Limit your answers to five pages at most.
 
 ## 1 Overall
@@ -28,7 +28,7 @@ Prioritize and limit work according to operational needs, Structure and organize
 Motivate your assessment with examples, using the following criteria: Contribute towards an open, permissive working climate, Treat colleagues and students with respect, Share knowledge and experiences with colleagues, Build and maintain relationships and networks, both within and beyond the department or equivalent
 
 * _Joint course development effort for OOP course, hoping to extend this colaboration into the OOA/D course._
-* _Sharing knowledge regarding GitLab build pipelines, Gradle and contributing with working open source code to assess student submissions: 
+* _Sharing knowledge regarding GitLab build pipelines, Gradle and contributing with working [open source code to monitor quality of student submissions](https://github.com/tobias-dv-lnu/log/tree/main/code/gitlab-code-quality-as-unit-tests)_
 * _Contributing with course materials for engineering student project courses._
 
 ### 1.3 My ability to contribute towards operational development is excellent
