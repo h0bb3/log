@@ -23,9 +23,9 @@ Motivate your assessment with examples, using the following criteria:
 * Structure and organize my work
 * Carry out work as agreed
 
-* Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points. With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%)
+* _Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points. With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%)_
 
-* Contributing with course materials for engineering student project courses, and being active in the course slack channel to answer questions etc.
+* _Contributing with course materials for engineering student project courses, and being active in the course slack channel to answer questions etc._
 
 ### 1.2 My ability to cooperate and contribute towards a good working environment is very good
 Motivate your assessment with examples, using the following criteria:
@@ -34,7 +34,8 @@ Motivate your assessment with examples, using the following criteria:
 * Share knowledge and experiences with colleagues
 * Build and maintain relationships and networks, both within and beyond the department or equivalent
 
-* Joint course development effort for OOP course, hoping to extend this colaboration into the OOA/D course.
+* _Joint course development effort for OOP course, hoping to extend this colaboration into the OOA/D course._
+* _Contributing with course materials for engineering student project courses._
 
 ### 1.3 My ability to contribute towards operational development is excellent
 Motivate your assessment with examples, using the following criteria:
@@ -43,9 +44,9 @@ Motivate your assessment with examples, using the following criteria:
 * Contribute towards the development of my unit
 * Contribute towards the development of university-wide issues
 
-* Being agile and flexible regarding tools and techniques for teaching and meeting students, for example live streaming weekly vlogs to keep a connection to the students when going full distance learning.
-* Adding contingency plans to courses and examinations as the pandemic could potentially disrupt projects in a catastrophic way. Removnig some stress for students and colleagues.
-* I'm happy and open to participate in most things related to having a better work environment, for example the day in our IoT lab.
+* _Being agile and flexible regarding tools and techniques for teaching and meeting students, for example live streaming weekly vlogs to keep a connection to the students when going full distance learning._
+* _Adding contingency plans to courses and examinations as the pandemic could potentially disrupt projects in a catastrophic way. Removnig some stress for students and colleagues._
+* _I'm happy and open to participate in most things related to having a better work environment, for example the day in our IoT lab._
 
 ## 2 Education
 During the revision period, my involvement in education was ~55% (on average).
@@ -56,9 +57,9 @@ Motivate your assessment with examples, using the following criteria:
 * Plan and carry out teaching
 * Supervise students/doctoral students
 
-* Online supervison/tutoring of students one-on-one using Slack
-* Online tutoring of students in thesis work and industry projects both one-on-one and in group settings
-* Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points. With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%) (as prev. mentioned)
+* _Online supervison/tutoring of students one-on-one using Slack._
+* _Online tutoring of students in thesis work and industry projects both one-on-one and in group settings._
+* _Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points._With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%) (as prev. mentioned)._
 
 ### 2.2 My ability to create a commitment to and an interest in the subject is excellent
 Motivate your assessment with examples, using the following criteria:
@@ -67,8 +68,8 @@ Motivate your assessment with examples, using the following criteria:
 * Motivate students to carry out their independent learning
 * Communicate with students/doctoral students
 
-* Regular vlogs in OOA/D course in the face of the pandemic
-* Very active on Slack for answering student questions and being generally supportive to struggling students
+* _Regular vlogs in OOA/D course in the face of the pandemic._
+* _Very active on Slack for answering student questions and being generally supportive to struggling students._
 
 ### 2.3 My ability to carry out educational development work is excellent
 Motivate your assessment with examples, using the following criteria:
@@ -78,8 +79,8 @@ Motivate your assessment with examples, using the following criteria:
 * Participation in development work together with colleagues
 * Producing teaching materials
 
-* Developed new Java OOP course, including automatic testing pipelines for student submissions
-* New materials for OOA/D course developed in the face of the pandemic
+* _Developed new Java OOP course, including automatic testing pipelines for student submissions._
+* _New materials for OOA/D course developed in the face of the pandemic._
   
 
 ### 2.4 Competency development
@@ -103,7 +104,7 @@ Motivate your assessment with examples, using the following criteria:
 * Apply for and obtain external research funding
 * Achieve national and international publication in high-ranking journals or similar
 
-* Two of my research papers were independently evaluated at 100% and 85% quality (mean score was 80%, N=142) in [Deep analysis of quality of primary studies on assessing the impact of refactoring on software quality](https://www.sciencedirect.com/science/article/pii/S2214785320388258)
+* _Two of my research papers were independently evaluated at 100% and 85% quality (mean score was 80%, N=142) in [Deep analysis of quality of primary studies on assessing the impact of refactoring on software quality](https://www.sciencedirect.com/science/article/pii/S2214785320388258)_
 
 ### 3.2 My involvement in the research community is good
 Motivate your assessment with examples, using the following criteria:
@@ -113,12 +114,12 @@ Motivate your assessment with examples, using the following criteria:
 * Carry out commissions as an expert, a faculty opponent, or a member of a grading committee
 * Carry out commissions in external research organizations
 
-* I act as a member on the Program Committee of the SaEroCon Workshop
-* I publish and maintain an open source software to support the research community
+* _I act as a member on the Program Committee of the SaEroCon Workshop_
+* _I publish and maintain an open source software to support the research community_
 
 ### 3.3 Competency development
 Describe how you used your competency development to do research.
-* I'm currently working to finalize my PhD studies
+* _Working to finalize my PhD studies._
 
 ## 4 Collaboration with society
 ### 4.1 My ability to produce information about research and to collaborate with the rest of society is very good
@@ -127,8 +128,8 @@ Describe how you used your competency development to do research.
 * Participate in public education
 * Participate in initiatives to develop contact with industry, the public sector, and the cultural sector
  
-* Member in BOTI group for technical information research and external monitoring.
-* Connecting with industry partners to conduct and tutor successfull projects with regional and national companies: Kalmar Energi, Tieto Every, Verto and Vitec Software.  
+* _Member in BOTI group for technical information research and external monitoring._
+* _Connecting with industry partners to conduct and tutor successfull projects with regional and national companies: Kalmar Energi, Tieto Every, Verto and Vitec Software._ 
 
 ## 5 Services to the department, faculty, and university
 During the revision period, my involvement in administration/other was 0 % (on average).
