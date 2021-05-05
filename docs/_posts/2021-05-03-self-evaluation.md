@@ -15,7 +15,7 @@ Please submit this document at least 24 hours before your appraisal talk. Limit 
 My employment is 100% of full time.
 Please list your highest academic degrees (bachelor, master, doctorate) and when it was awarded. Indicate if you are a docent or professor (or have applied to be assessed as such).
 
-Licenciate in Computer Science, 2017
+Licenciate in Computer Science, 2016
 
 ### 1.1 My ability to achieve good, high-quality results is: very good
 Motivate your assessment with examples, using the following criteria:
