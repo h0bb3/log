@@ -47,6 +47,7 @@ Motivate your assessment with examples, using the following criteria: Structure 
 * _Online supervison/tutoring of students one-on-one using Slack._
 * _Online tutoring of students in thesis work and industry projects both one-on-one and in group settings._
 * _Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points (as prev. mentioned)._
+* _Automatically and Manually assessing ~250 student submissions within 15 working days of submission deadline_
 
 ### 2.2 My ability to create a commitment to and an interest in the subject is: _very good_
 Motivate your assessment with examples, using the following criteria: Motivate students to participate actively in courses/teaching, Motivate students to take a critical attitude, Motivate students to carry out their independent learning, Communicate with students/doctoral students.
