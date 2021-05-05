@@ -23,12 +23,18 @@ Motivate your assessment with examples, using the following criteria:
 * Structure and organize my work
 * Carry out work as agreed
 
+* Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points. With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%)
+
+* Contributing with course materials for engineering student project courses, and being active in the course slack channel to answer questions etc.
+
 ### 1.2 My ability to cooperate and contribute towards a good working environment is very good
 Motivate your assessment with examples, using the following criteria:
 * Contribute towards an open, permissive working climate
 * Treat colleagues and students with respect
 * Share knowledge and experiences with colleagues
 * Build and maintain relationships and networks, both within and beyond the department or equivalent
+
+* Joint course development effort for OOP course, hoping to extend this colaboration into the OOA/D course.
 
 ### 1.3 My ability to contribute towards operational development is excellent
 Motivate your assessment with examples, using the following criteria:
@@ -38,6 +44,8 @@ Motivate your assessment with examples, using the following criteria:
 * Contribute towards the development of university-wide issues
 
 * Being agile and flexible regarding tools and techniques for teaching and meeting students, for example live streaming weekly vlogs to keep a connection to the students when going full distance learning.
+* Adding contingency plans to courses and examinations as the pandemic could potentially disrupt projects in a catastrophic way. Removnig some stress for students and colleagues.
+* I'm happy and open to participate in most things related to having a better work environment, for example the day in our IoT lab.
 
 ## 2 Education
 During the revision period, my involvement in education was ~55% (on average).
@@ -48,8 +56,9 @@ Motivate your assessment with examples, using the following criteria:
 * Plan and carry out teaching
 * Supervise students/doctoral students
 
-* Online supervison/tutoring of students using Slack
-* Online tutoring of students in thesis work and industry projects
+* Online supervison/tutoring of students one-on-one using Slack
+* Online tutoring of students in thesis work and industry projects both one-on-one and in group settings
+* Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points. With a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%) (as prev. mentioned)
 
 ### 2.2 My ability to create a commitment to and an interest in the subject is excellent
 Motivate your assessment with examples, using the following criteria:
