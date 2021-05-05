@@ -93,7 +93,7 @@ Describe how you used your competency development to do research.
  
 * _Member in BOTI group for technical information research and external monitoring._
 * _Connecting with industry partners to conduct and tutor successfull projects with regional and national companies: Kalmar Energi, Tieto Every, Verto and Vitec Software._
-* _Participation in SwedSoft _ 
+* _Participation in SwedSoft STEW 2020_ 
 
 ## 5 Services to the department, faculty, and university
 During the revision period, my involvement in administration/other was 0 % (on average).
