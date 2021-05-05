@@ -19,13 +19,9 @@ Licenciate in Computer Science, 2016
 
 ### 1.1 My ability to achieve good, high-quality results is: very good
 Motivate your assessment with examples, using the following criteria:
-* Prioritize and limit work according to operational needs
-* Structure and organize my work
-* Carry out work as agreed
-
+Prioritize and limit work according to operational needs, Structure and organize my work, Carry out work as agreed
 
 * _Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points, with a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%)_
-
 * _Contributing with course materials for engineering student project courses, and being active in the course slack channel to answer questions etc._
 
 ### 1.2 My ability to cooperate and contribute towards a good working environment is very good
