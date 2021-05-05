@@ -58,6 +58,7 @@ Motivate your assessment with examples, using the following criteria: Motivate s
 Motivate your assessment with examples, using the following criteria: Participation in development within my subject area, Active participation in course development work, Ability to cooperate and a desire to share knowledge with colleagues, Participation in development work together with colleagues, Producing teaching materials
 
 * _Developed new Java OOP course, including automatic testing pipelines for student submissions._
+* _Initiating a survey on students attitudes towards automatic assessment of programming assignments._
 * _New materials for OOA/D course developed in the face of the pandemic._
   
 
