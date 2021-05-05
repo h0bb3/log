@@ -6,57 +6,62 @@ comments_id: 13
 description: "can I supersize that?"
 tags: "work"
 ---
-Use the following headings to self-evaluate your work performance for the revision period.
-Please reflect on your performance and be as honest as possible. Provide clear examples
-when possible and attach any additional documents, such as evaluations, that
-you think are relevant. Make sure to emphasize both your performance and what you
+Use the following headings to self-evaluate your work performance for the revision period. Please reflect on your performance and be as honest as possible. Provide clear examples when possible and attach any additional documents, such as evaluations, that you think are relevant. Make sure to emphasize both your performance and what you
 have done to improve it.
-Replace {{INT}} with an integer, e.g., 20. Use the following scale to {{GRADE}} your
-performance: inadequate, adequate, satisfactory, good, very good, or excellent.
-Please submit this document at least 24 hours before your appraisal talk. Limit your
-answers to five pages at most.
+Replace {{INT}} with an integer, e.g., 20. Use the following scale to {{GRADE}} your performance: inadequate, adequate, satisfactory, good, very good, or excellent.
+Please submit this document at least 24 hours before your appraisal talk. Limit your answers to five pages at most.
 
 ## 1 Overall
 My employment is 100% of full time.
 Please list your highest academic degrees (bachelor, master, doctorate) and when it was awarded. Indicate if you are a docent or professor (or have applied to be assessed as such).
 
-### 1.1 My ability to achieve good, high-quality results is {{GRADE}}
+Licenciate in Computer Science, 2017
+
+### 1.1 My ability to achieve good, high-quality results is: very good
 Motivate your assessment with examples, using the following criteria:
 * Prioritize and limit work according to operational needs
 * Structure and organize my work
 * Carry out work as agreed
 
-### 1.2 My ability to cooperate and contribute towards a good working environment is {{GRADE}}
+### 1.2 My ability to cooperate and contribute towards a good working environment is very good
 Motivate your assessment with examples, using the following criteria:
 * Contribute towards an open, permissive working climate
 * Treat colleagues and students with respect
 * Share knowledge and experiences with colleagues
 * Build and maintain relationships and networks, both within and beyond the department or equivalent
 
-### 1.3 My ability to contribute towards operational development is {{GRADE}}
+### 1.3 My ability to contribute towards operational development is excellent
 Motivate your assessment with examples, using the following criteria:
 * Contribute towards the development of working methods and knowledge environments
 * Deal with changes to circumstances, assignments, and work duties
 * Contribute towards the development of my unit
 * Contribute towards the development of university-wide issues
 
-## 2 Education
-During the revision period, my involvement in education was 55% (on average).
+* Being agile and flexible regarding tools and techniques for teaching and meeting students, for example live streaming weekly vlogs to keep a connection to the students when going full distance learning.
 
-### 2.1 My ability to implement, develop and lead high-quality teaching is {{GRADE}}
+## 2 Education
+During the revision period, my involvement in education was ~55% (on average).
+
+### 2.1 My ability to implement, develop and lead high-quality teaching is very good
 Motivate your assessment with examples, using the following criteria:
 * Structure and organize the subject’s knowledge area in courses and my teaching
 * Plan and carry out teaching
 * Supervise students/doctoral students
 
-### 2.2 My ability to create a commitment to and an interest in the subject is {{GRADE}}
+* Online supervison/tutoring of students using Slack
+* Online tutoring of students in thesis work and industry projects
+
+### 2.2 My ability to create a commitment to and an interest in the subject is excellent
 Motivate your assessment with examples, using the following criteria:
 * Motivate students to participate actively in courses/teaching
 * Motivate students to take a critical attitude
 * Motivate students to carry out their independent learning
 * Communicate with students/doctoral students
 
-### 2.3 My ability to carry out educational development work is {{GRADE}}
+* Regular vlogs in OOA/D course in the face of the pandemic
+* Very active on Slack for answering student questions and being generally supportive to struggling students
+
+### 2.3 My ability to carry out educational development work is excellent
 Motivate your assessment with examples, using the following criteria:
 * Participation in development within my subject area
 * Active participation in course development work
@@ -64,13 +69,23 @@ Motivate your assessment with examples, using the following criteria:
 * Participation in development work together with colleagues
 * Producing teaching materials
 
+* Developed new Java OOP course, including automatic testing pipelines for student submissions
+* New materials for OOA/D course developed in the face of the pandemic
+  
+
 ### 2.4 Competency development
 Describe how you used your competency development to improve your education or educational skills.
+
+* GitLab pipelines
+* Gradle (Java) build tool
+* Automatic (Java) code quality assessment using FindBugs
+* Automatic (Java) linting using CheckStyle
+* Video editing and live streaming software
 
 ## 3 Research
 During the revision period, my involvement in research was 45% (on average).
 
-### 3.1 My ability to carry out high-quality research is {{GRADE}}
+### 3.1 My ability to carry out high-quality research is good
 Motivate your assessment with examples, using the following criteria:
 * Achieve high-quality scientific results
 * Organize and lead research projects and research teams
@@ -79,7 +94,9 @@ Motivate your assessment with examples, using the following criteria:
 * Apply for and obtain external research funding
 * Achieve national and international publication in high-ranking journals or similar
 
-### 3.2 My involvement in the research community is {{GRADE}}
+* Two of my research papers were independently evaluated at 100% and 85% quality (mean score was 80%, N=142) in [Deep analysis of quality of primary studies on assessing the impact of refactoring on software quality](https://www.sciencedirect.com/science/article/pii/S2214785320388258)
+
+### 3.2 My involvement in the research community is good
 Motivate your assessment with examples, using the following criteria:
 * Guest research
 * Invited talks
@@ -87,18 +104,25 @@ Motivate your assessment with examples, using the following criteria:
 * Carry out commissions as an expert, a faculty opponent, or a member of a grading committee
 * Carry out commissions in external research organizations
 
+* I act as a member on the Program Committee of the SaEroCon Workshop
+* I publish and maintain an open source software to support the research community
+
 ### 3.3 Competency development
 Describe how you used your competency development to do research.
+* I'm currently working to finalize my PhD studies
 
 ## 4 Collaboration with society
-### 4.1 My ability to produce information about research and to collaborate with the rest of society is {{GRADE}}
+### 4.1 My ability to produce information about research and to collaborate with the rest of society is very good
 * Publish in popular science publications
 * Participate in public debate on issues relating to education and research
 * Participate in public education
 * Participate in initiatives to develop contact with industry, the public sector, and the cultural sector
+ 
+* Member in BOTI group for technical information research and external monitoring.
+* Connecting with industry partners to conduct and tutor successfull projects with regional and national companies: Kalmar Energi, Tieto Every, Verto and Vitec Software.  
 
 ## 5 Services to the department, faculty, and university
-During the revision period, my involvement in administration/other was {{INT}} % (on average).
+During the revision period, my involvement in administration/other was 0 % (on average).
 List your engagements below and motivate why these should are important to consider when appraising your work performance.
 
 ## 6 Other information
