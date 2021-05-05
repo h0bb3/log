@@ -23,6 +23,7 @@ Motivate your assessment with examples, using the following criteria:
 * Structure and organize my work
 * Carry out work as agreed
 
+
 * _Managing the wp 1st year project course involving 45 projects, 4+1 teachers doing tutoring and final evaluation using structured grading criteria with 6 evaluation points, with a budget of 50h. Student evaluation of the course was (Mycket bra: 36%, Ganska bra: 64%)_
 
 * _Contributing with course materials for engineering student project courses, and being active in the course slack channel to answer questions etc._
