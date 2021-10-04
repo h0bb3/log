@@ -1,6 +1,5 @@
 // This work is licensed under a CC BY 4.0 license. https://creativecommons.org/licenses/by/4.0/
 
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -11,14 +10,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class CodeQualityTests {
   final static String checkStyleXmlFile = "./build/reports/checkstyle/main.xml";
@@ -48,7 +45,7 @@ public class CodeQualityTests {
     int errors = 0;
     errors = checkStyleTest();
     errors += findBugsTest();
-    assertTrue("Max amount (" + maxQualityErrors +") of quality issues exceeded:" + errors, errors < maxQualityErrors);
+    assertTrue(errors < maxQualityErrors, "Max amount (" + maxQualityErrors +") of quality issues exceeded:" + errors);
   }
 
   public int findBugsTest() {
@@ -73,20 +70,15 @@ public class CodeQualityTests {
       HashMap<String, TestCase> bugInstances = new HashMap<>();
 
       // we should actually add all the checked files first so we can get some passing tests too
-      NodeList classNodes = doc.getElementsByTagName("Jar");
+      // TODO: this should use the FileStats tag instead
+      NodeList classNodes = doc.getElementsByTagName("FileStats");
       for (int cnIx = 0; cnIx < classNodes.getLength(); cnIx++) {
-        String fileName = classNodes.item(cnIx).getTextContent();
-        fileName = fileName.replace("\\", "/");
-        fileName = fileName.substring(fileName.indexOf(buildRoot + "/") + buildRoot.length() + 1);
-        if (!fileName.contains("$")) {
-          fileName = fileName.replace(".class", ".java");
-          TestCase tc = new TestCase();
-          tc.fileName = fileName;
-          tc.className = "FindBugs Issues";
-          tc.name = fileName;
-          bugInstances.put(fileName, tc);
-        }
-
+        String fileName = classNodes.item(cnIx).getAttributes().getNamedItem("path").getNodeValue();
+        TestCase tc = new TestCase();
+        tc.fileName = fileName;
+        tc.className = "FindBugs Issues";
+        tc.name = fileName;
+        bugInstances.put(fileName, tc);
       }
 
       NodeList biNodes = doc.getElementsByTagName("BugInstance");
@@ -103,15 +95,18 @@ public class CodeQualityTests {
 
 
         TestCase tc = bugInstances.get(path);
+        if (tc == null) {
+          System.err.println("Could not find bug instance for:"  + path);
+        } else {
+          Failure f = new Failure();
+          tc.failures.add(f);
 
-        Failure f = new Failure();
-        tc.failures.add(f);
 
+          f.type = "FindBugs Issue";
+          f.message = "FindBugs Issues";
 
-        f.type = "FindBugs Issue";
-        f.message = "FindBugs Issues";
-
-        f.text += "lines: " + line + System.lineSeparator() + longMessage + System.lineSeparator() + bugPatterns.get(type);
+          f.text += "lines: " + line + System.lineSeparator() + longMessage + System.lineSeparator() + bugPatterns.get(type);
+        }
 
         errors++;
       }
@@ -123,7 +118,7 @@ public class CodeQualityTests {
       e.printStackTrace();
     } catch (FileNotFoundException e) {
       e.printStackTrace();
-      assertTrue("File not found: " + findBugsXmlFile, false);
+      assertTrue(false, "File not found: " + findBugsXmlFile);
     } catch (IOException e) {
       e.printStackTrace();
     } catch (SAXException e) {
@@ -170,9 +165,10 @@ public class CodeQualityTests {
       return out;
 
     } catch (ParserConfigurationException | SAXException | IOException e) {
-      e.printStackTrace();
+      System.err.println(e.getMessage());
     }
 
+    System.err.println("parsing of text failed possibly due to bad html/xml formatting for, start text --->" +  str + "<--- end text");
     // parsing seem to have failed so we revert so some crappy replacements instead...
     str = str.replace("    ", "\t");
     str = str.replace("\n    ", " ");
@@ -254,7 +250,7 @@ public class CodeQualityTests {
     } catch (ParserConfigurationException e) {
       e.printStackTrace();
     } catch (FileNotFoundException e) {
-      assertTrue("File not found: " + checkStyleXmlFile, false);
+      assertTrue(false, "File not found: " + checkStyleXmlFile);
     } catch (SAXException e) {
       e.printStackTrace();
     } catch (IOException e) {
