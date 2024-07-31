@@ -3,7 +3,7 @@ layout: post
 title:  "Python and Solana"
 description: "not a love story"
 author: "h0bb3"
-comments_id: 22
+comments_id: 17
 tags: "programming coding dev Solana blockchain account python"
 ---
 Well a lot has happened since my last post. Basically going full time with our blockchain-based DePin Energy project [srcful](https://srcful.io). This is all mighty exciting from different points of view but I will not talk further about that atm.
