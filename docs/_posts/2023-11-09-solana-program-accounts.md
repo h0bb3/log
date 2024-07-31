@@ -3,7 +3,7 @@ layout: post
 title:  "Solana Program Accounts"
 description: "Wait a minute.... this seems like C++..."
 author: "h0bb3"
-comments_id: 21
+comments_id: 16
 tags: "programming coding dev Solana blockchain account"
 ---
 
