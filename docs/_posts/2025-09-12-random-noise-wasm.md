@@ -8,7 +8,7 @@ tags: "programming wasm graphics development"
 ---
 # Exploring WASM Performance with Random Noise
 
-Today I'm experimenting with WebAssembly for high-performance graphics. The goal is to see how fast we can generate and display random pixel data.
+Today I'm experimenting with WebAssembly for high-performance graphics. The goal is to see how fast we can generate and display random pixel data and in general how to get this onto a webpage.
 
 ## The Challenge
 
