@@ -19,13 +19,14 @@ Generating random colors for every pixel at 60+ FPS is computationally intensive
   <br><br>
   <button onclick="startDemo()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Demo</button>
   <button onclick="stopDemo()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Stop Demo</button>
+  <button onclick="toggleFpsOverlay()">Toggle FPS</button>
 </div>
 
 ## Performance Results
 
 As you can see from the demo above, the WASM implementation achieves:
 
-- **C++ FPS**: ~120 FPS (logic/rendering)
+- **C++ FPS**: ~100 FPS (logic/rendering)
 - **JavaScript FPS**: ~60 FPS (display)
 - **Memory usage**: Fixed 1.2MB pixel buffer
 
