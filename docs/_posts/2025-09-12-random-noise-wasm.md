@@ -57,6 +57,7 @@ let pixelBuffer = null;
 let imageData = null;
 let fpsCounter = 0;
 let lastTime = 0;
+let animationId = null;
 
 // Initialize when page loads
 window.addEventListener('load', () => {
@@ -85,41 +86,43 @@ function initializeDemo() {
     console.log('WASM module ready');
     
     // Initialize the pixel buffer and image data
-    const bufferSize = 640 * 480 * 4;
     imageData = ctx.createImageData(640, 480);
     
-    // Start the rendering loop
+    // Start the rendering loop immediately
     startRenderingLoop();
 }
 
 function startRenderingLoop() {
     function renderFrame() {
         if (wasmModule && wasmModule._getPixelBuffer) {
-            // Get the pixel buffer from WASM
-            const bufferPtr = wasmModule._getPixelBuffer();
-            const buffer = new Uint8Array(wasmModule.HEAPU8.buffer, bufferPtr, 640 * 480 * 4);
-            
-            // Copy to image data
-            imageData.data.set(buffer);
-            
-            // Draw to canvas
-            ctx.putImageData(imageData, 0, 0);
-            
-            // Update FPS counter
-            fpsCounter++;
-            const currentTime = performance.now();
-            if (currentTime - lastTime >= 1000) {
-                const jsFps = fpsCounter * 1000 / (currentTime - lastTime);
-                const cppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
-                console.log(`JS FPS: ${jsFps.toFixed(1)}, C++ FPS: ${cppFps.toFixed(1)}`);
-                fpsCounter = 0;
-                lastTime = currentTime;
+            try {
+                // Get the pixel buffer from WASM
+                const bufferPtr = wasmModule._getPixelBuffer();
+                const buffer = new Uint8Array(wasmModule.HEAPU8.buffer, bufferPtr, 640 * 480 * 4);
+                
+                // Copy to image data
+                imageData.data.set(buffer);
+                
+                // Draw to canvas
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Update FPS counter
+                fpsCounter++;
+                const currentTime = performance.now();
+                if (currentTime - lastTime >= 1000) {
+                    const jsFps = fpsCounter * 1000 / (currentTime - lastTime);
+                    const cppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
+                    console.log(`JS FPS: ${jsFps.toFixed(1)}, C++ FPS: ${cppFps.toFixed(1)}`);
+                    fpsCounter = 0;
+                    lastTime = currentTime;
+                }
+            } catch (e) {
+                console.error('Error in render frame:', e);
             }
         }
         
-        if (isRunning) {
-            requestAnimationFrame(renderFrame);
-        }
+        // Continue the loop
+        animationId = requestAnimationFrame(renderFrame);
     }
     
     renderFrame();
@@ -127,9 +130,19 @@ function startRenderingLoop() {
 
 function startDemo() {
     if (wasmModule && wasmModule._initDemo) {
-        wasmModule._initDemo();
-        isRunning = true;
-        console.log('Demo started');
+        try {
+            wasmModule._initDemo();
+            isRunning = true;
+            console.log('Demo started');
+        } catch (e) {
+            // The "unwind" exception is expected - it's how Emscripten starts the main loop
+            if (e === "unwind") {
+                isRunning = true;
+                console.log('Demo started (unwind caught)');
+            } else {
+                console.error('Error starting demo:', e);
+            }
+        }
     } else {
         console.error('WASM module not ready');
     }
@@ -137,9 +150,13 @@ function startDemo() {
 
 function stopDemo() {
     if (wasmModule && wasmModule._stopDemo) {
-        wasmModule._stopDemo();
-        isRunning = false;
-        console.log('Demo stopped');
+        try {
+            wasmModule._stopDemo();
+            isRunning = false;
+            console.log('Demo stopped');
+        } catch (e) {
+            console.error('Error stopping demo:', e);
+        }
     }
 }
 </script>
