@@ -6,3 +6,8 @@ issues_repo: tobias-dv-lnu/log
 # jekyll-paginate
 paginate: 5
 paginate_path: "/log/docs/page:num/"
+
+include:
+  - "**/*.wasm"
+  - "**/*.js"
+  - "assets/wasm-demos/"
