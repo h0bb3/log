@@ -106,13 +106,16 @@ function startRenderingLoop() {
                 // Draw to canvas
                 ctx.putImageData(imageData, 0, 0);
                 
-                // Update FPS counter
+                // Update FPS counter and display
                 fpsCounter++;
                 const currentTime = performance.now();
                 if (currentTime - lastTime >= 1000) {
                     const jsFps = fpsCounter * 1000 / (currentTime - lastTime);
                     const cppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
-                    console.log(`JS FPS: ${jsFps.toFixed(1)}, C++ FPS: ${cppFps.toFixed(1)}`);
+                    
+                    // Display FPS overlay
+                    displayFpsOverlay(jsFps, cppFps);
+                    
                     fpsCounter = 0;
                     lastTime = currentTime;
                 }
@@ -126,6 +129,35 @@ function startRenderingLoop() {
     }
     
     renderFrame();
+}
+
+function displayFpsOverlay(jsFps, cppFps) {
+    // Save the current canvas state
+    ctx.save();
+    
+    // Set up text styling
+    ctx.font = '16px monospace';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 1;
+    
+    // Create background rectangle
+    const text = `JS: ${jsFps.toFixed(1)} FPS | C++: ${cppFps.toFixed(1)} FPS`;
+    const textMetrics = ctx.measureText(text);
+    const padding = 8;
+    const rectWidth = textMetrics.width + padding * 2;
+    const rectHeight = 20 + padding * 2;
+    
+    // Draw background
+    ctx.fillRect(10, 10, rectWidth, rectHeight);
+    
+    // Draw text with outline
+    ctx.strokeText(text, 10 + padding, 10 + padding + 12);
+    ctx.fillStyle = 'white';
+    ctx.fillText(text, 10 + padding, 10 + padding + 12);
+    
+    // Restore canvas state
+    ctx.restore();
 }
 
 function startDemo() {
