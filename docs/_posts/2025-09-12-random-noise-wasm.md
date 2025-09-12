@@ -47,15 +47,80 @@ void render(uint8_t* buffer) {
 ```
 
 <script src="/log/assets/wasm-demos/random-noise/demo.js"></script>
+
 <script>
 let wasmModule = null;
 let isRunning = false;
+let canvas = null;
+let ctx = null;
+let pixelBuffer = null;
+let imageData = null;
+let fpsCounter = 0;
+let lastTime = 0;
 
-// Your demo initialization code here
+// Initialize when page loads
+window.addEventListener('load', () => {
+    canvas = document.getElementById('demo-canvas');
+    ctx = canvas.getContext('2d');
+    
+    // Wait for WASM module to be ready
+    if (typeof Module !== 'undefined') {
+        Module.onRuntimeInitialized = function() {
+            wasmModule = Module;
+            console.log('WASM module initialized');
+            
+            // Initialize the pixel buffer and image data
+            const bufferSize = 640 * 480 * 4;
+            imageData = ctx.createImageData(640, 480);
+            
+            // Start the rendering loop
+            startRenderingLoop();
+        };
+    } else {
+        console.error('WASM module not found');
+    }
+});
+
+function startRenderingLoop() {
+    function renderFrame() {
+        if (wasmModule && wasmModule._getPixelBuffer) {
+            // Get the pixel buffer from WASM
+            const bufferPtr = wasmModule._getPixelBuffer();
+            const buffer = new Uint8Array(wasmModule.HEAPU8.buffer, bufferPtr, 640 * 480 * 4);
+            
+            // Copy to image data
+            imageData.data.set(buffer);
+            
+            // Draw to canvas
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Update FPS counter
+            fpsCounter++;
+            const currentTime = performance.now();
+            if (currentTime - lastTime >= 1000) {
+                const jsFps = fpsCounter * 1000 / (currentTime - lastTime);
+                const cppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
+                console.log(`JS FPS: ${jsFps.toFixed(1)}, C++ FPS: ${cppFps.toFixed(1)}`);
+                fpsCounter = 0;
+                lastTime = currentTime;
+            }
+        }
+        
+        if (isRunning) {
+            requestAnimationFrame(renderFrame);
+        }
+    }
+    
+    renderFrame();
+}
+
 function startDemo() {
     if (wasmModule && wasmModule._initDemo) {
         wasmModule._initDemo();
         isRunning = true;
+        console.log('Demo started');
+    } else {
+        console.error('WASM module not ready');
     }
 }
 
@@ -63,11 +128,7 @@ function stopDemo() {
     if (wasmModule && wasmModule._stopDemo) {
         wasmModule._stopDemo();
         isRunning = false;
+        console.log('Demo stopped');
     }
 }
-
-// Initialize when page loads
-window.addEventListener('load', () => {
-    // Your WASM initialization code
-});
 </script>
