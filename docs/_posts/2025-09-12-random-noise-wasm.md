@@ -60,6 +60,7 @@ let lastTime = 0;
 let animationId = null;
 let currentJsFps = 0;
 let currentCppFps = 0;
+let showFpsOverlay = true;
 
 // Initialize when page loads
 window.addEventListener('load', () => {
@@ -119,8 +120,10 @@ function startRenderingLoop() {
                     lastTime = currentTime;
                 }
                 
-                // Always draw the FPS overlay (so it doesn't blink)
-                displayFpsOverlay(currentJsFps, currentCppFps);
+                // Draw FPS overlay if enabled
+                if (showFpsOverlay) {
+                    displayFpsOverlay(currentJsFps, currentCppFps);
+                }
                 
             } catch (e) {
                 console.error('Error in render frame:', e);
@@ -164,6 +167,11 @@ function displayFpsOverlay(jsFps, cppFps) {
 }
 
 function startDemo() {
+    if (isRunning) {
+        console.log('Demo is already running');
+        return;
+    }
+    
     if (wasmModule && wasmModule._initDemo) {
         try {
             wasmModule._initDemo();
@@ -184,6 +192,11 @@ function startDemo() {
 }
 
 function stopDemo() {
+    if (!isRunning) {
+        console.log('Demo is not running');
+        return;
+    }
+    
     if (wasmModule && wasmModule._stopDemo) {
         try {
             wasmModule._stopDemo();
@@ -193,5 +206,10 @@ function stopDemo() {
             console.error('Error stopping demo:', e);
         }
     }
+}
+
+function toggleFpsOverlay() {
+    showFpsOverlay = !showFpsOverlay;
+    console.log('FPS overlay:', showFpsOverlay ? 'ON' : 'OFF');
 }
 </script>
