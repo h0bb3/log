@@ -19,21 +19,7 @@ Generating random colors for every pixel at 60+ FPS is computationally intensive
   <br><br>
   <button onclick="startDemo()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Start Demo</button>
   <button onclick="stopDemo()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Stop Demo</button>
-  <button onclick="toggleFpsOverlay()" style="
-    background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
-    margin: 4px;
-">
-    Toggle FPS
-</button>
+  <button onclick="toggleFpsOverlay()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Toggle FPS</button>
 </div>
 
 ## Performance Results
