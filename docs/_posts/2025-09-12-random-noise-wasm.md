@@ -63,23 +63,34 @@ window.addEventListener('load', () => {
     canvas = document.getElementById('demo-canvas');
     ctx = canvas.getContext('2d');
     
-    // Wait for WASM module to be ready
+    // Check if Module is already available and initialized
     if (typeof Module !== 'undefined') {
-        Module.onRuntimeInitialized = function() {
+        if (Module.calledRun) {
+            // Module is already initialized
             wasmModule = Module;
-            console.log('WASM module initialized');
-            
-            // Initialize the pixel buffer and image data
-            const bufferSize = 640 * 480 * 4;
-            imageData = ctx.createImageData(640, 480);
-            
-            // Start the rendering loop
-            startRenderingLoop();
-        };
+            initializeDemo();
+        } else {
+            // Module exists but not yet initialized
+            Module.onRuntimeInitialized = function() {
+                wasmModule = Module;
+                initializeDemo();
+            };
+        }
     } else {
         console.error('WASM module not found');
     }
 });
+
+function initializeDemo() {
+    console.log('WASM module ready');
+    
+    // Initialize the pixel buffer and image data
+    const bufferSize = 640 * 480 * 4;
+    imageData = ctx.createImageData(640, 480);
+    
+    // Start the rendering loop
+    startRenderingLoop();
+}
 
 function startRenderingLoop() {
     function renderFrame() {
