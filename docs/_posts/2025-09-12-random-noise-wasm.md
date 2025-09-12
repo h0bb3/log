@@ -58,6 +58,8 @@ let imageData = null;
 let fpsCounter = 0;
 let lastTime = 0;
 let animationId = null;
+let currentJsFps = 0;
+let currentCppFps = 0;
 
 // Initialize when page loads
 window.addEventListener('load', () => {
@@ -110,15 +112,16 @@ function startRenderingLoop() {
                 fpsCounter++;
                 const currentTime = performance.now();
                 if (currentTime - lastTime >= 1000) {
-                    const jsFps = fpsCounter * 1000 / (currentTime - lastTime);
-                    const cppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
-                    
-                    // Display FPS overlay
-                    displayFpsOverlay(jsFps, cppFps);
+                    currentJsFps = fpsCounter * 1000 / (currentTime - lastTime);
+                    currentCppFps = wasmModule._getCppFps ? wasmModule._getCppFps() : 0;
                     
                     fpsCounter = 0;
                     lastTime = currentTime;
                 }
+                
+                // Always draw the FPS overlay (so it doesn't blink)
+                displayFpsOverlay(currentJsFps, currentCppFps);
+                
             } catch (e) {
                 console.error('Error in render frame:', e);
             }
@@ -135,26 +138,26 @@ function displayFpsOverlay(jsFps, cppFps) {
     // Save the current canvas state
     ctx.save();
     
-    // Set up text styling
-    ctx.font = '16px monospace';
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    // Set up text styling - much smaller font
+    ctx.font = '12px monospace';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.lineWidth = 1;
     
     // Create background rectangle
-    const text = `JS: ${jsFps.toFixed(1)} FPS | C++: ${cppFps.toFixed(1)} FPS`;
+    const text = `JS: ${jsFps.toFixed(1)} | C++: ${cppFps.toFixed(1)}`;
     const textMetrics = ctx.measureText(text);
-    const padding = 8;
+    const padding = 4;
     const rectWidth = textMetrics.width + padding * 2;
-    const rectHeight = 20 + padding * 2;
+    const rectHeight = 14 + padding * 2;
     
     // Draw background
-    ctx.fillRect(10, 10, rectWidth, rectHeight);
+    ctx.fillRect(8, 8, rectWidth, rectHeight);
     
     // Draw text with outline
-    ctx.strokeText(text, 10 + padding, 10 + padding + 12);
+    ctx.strokeText(text, 8 + padding, 8 + padding + 10);
     ctx.fillStyle = 'white';
-    ctx.fillText(text, 10 + padding, 10 + padding + 12);
+    ctx.fillText(text, 8 + padding, 8 + padding + 10);
     
     // Restore canvas state
     ctx.restore();
