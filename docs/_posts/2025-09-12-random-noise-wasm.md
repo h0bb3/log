@@ -46,7 +46,7 @@ void render(uint8_t* buffer) {
 }
 ```
 
-<script src="/assets/wasm-demos/random-noise/demo.js"></script>
+<script src="/log/assets/wasm-demos/random-noise/demo.js"></script>
 <script>
 let wasmModule = null;
 let isRunning = false;
