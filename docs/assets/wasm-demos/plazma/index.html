@@ -90,6 +90,84 @@
             border-radius: 4px;
             backdrop-filter: blur(10px);
         }
+        
+        .render-mode-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+        
+        .render-mode-btn {
+            padding: 12px 16px;
+            background: rgba(33, 150, 243, 0.8);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            min-width: 120px;
+            transition: all 0.2s ease;
+        }
+        
+        .render-mode-btn:hover {
+            background: rgba(30, 136, 229, 0.9);
+            transform: translateY(-1px);
+        }
+        
+        .render-mode-btn.active {
+            background: rgba(76, 175, 80, 0.9);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .render-mode-btn.active:hover {
+            background: rgba(69, 160, 73, 0.9);
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .render-mode-controls {
+                bottom: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+            
+            .render-mode-btn {
+                padding: 14px 18px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+            
+            .controls {
+                top: 10px;
+                left: 10px;
+                gap: 8px;
+            }
+            
+            button {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .info {
+                bottom: 10px;
+                left: 10px;
+                font-size: 12px;
+                padding: 8px;
+            }
+            
+            .fps-display {
+                top: 10px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -108,6 +186,11 @@
     
     <div class="info">
         <p>plasma - Press 1 for renderRaw, 2 for renderLUT, 3 for renderPaletteLUT (Current: renderRaw)</p>
+    </div>
+    
+    <div class="render-mode-controls">
+        <button id="renderRawBtn" class="render-mode-btn active">Render Raw</button>
+        <button id="renderLUTBtn" class="render-mode-btn">Render LUT</button>
     </div>
 
     <script src="plasma.js"></script>
@@ -144,6 +227,8 @@
                     const startBtn = document.getElementById('startBtn');
                     const stopBtn = document.getElementById('stopBtn');
                     const resetBtn = document.getElementById('resetBtn');
+                    const renderRawBtn = document.getElementById('renderRawBtn');
+                    const renderLUTBtn = document.getElementById('renderLUTBtn');
                     
                     // Button event listeners
                     startBtn.addEventListener('click', () => {
@@ -160,6 +245,23 @@
                     
                     resetBtn.addEventListener('click', () => {
                         resetDemo();
+                    });
+                    
+                    // Render mode button event listeners
+                    renderRawBtn.addEventListener('click', () => {
+                        if (Module && Module._setRenderMode) {
+                            Module._setRenderMode(0);
+                            updateRenderModeDisplay();
+                            updateRenderModeButtons(0);
+                        }
+                    });
+                    
+                    renderLUTBtn.addEventListener('click', () => {
+                        if (Module && Module._setRenderMode) {
+                            Module._setRenderMode(1);
+                            updateRenderModeDisplay();
+                            updateRenderModeButtons(1);
+                        }
                     });
                     
                     // Mouse tracking for the canvas
@@ -185,12 +287,14 @@
                             if (Module && Module._setRenderMode) {
                                 Module._setRenderMode(0);
                                 updateRenderModeDisplay();
+                                updateRenderModeButtons(0);
                             }
                         } else if (e.key === '2') {
                             // Switch to renderLUT mode
                             if (Module && Module._setRenderMode) {
                                 Module._setRenderMode(1);
                                 updateRenderModeDisplay();
+                                updateRenderModeButtons(1);
                             }
                         }
                     });
@@ -317,6 +421,12 @@
                         // Update render mode display
                         updateRenderModeDisplay();
                         
+                        // Update button states
+                        if (Module && Module._getRenderMode) {
+                            const currentMode = Module._getRenderMode();
+                            updateRenderModeButtons(currentMode);
+                        }
+                        
                     } else {
                         console.error('Error starting demo:', error);
                         isRunning = false;
@@ -371,6 +481,24 @@
                 const infoElement = document.querySelector('.info p');
                 if (infoElement) {
                     infoElement.innerHTML = `plasma - Press 1 for renderRaw, 2 for renderLUT (Current: ${modeText})`;
+                }
+            }
+        }
+        
+        function updateRenderModeButtons(activeMode) {
+            const renderRawBtn = document.getElementById('renderRawBtn');
+            const renderLUTBtn = document.getElementById('renderLUTBtn');
+            
+            if (renderRawBtn && renderLUTBtn) {
+                // Remove active class from all buttons
+                renderRawBtn.classList.remove('active');
+                renderLUTBtn.classList.remove('active');
+                
+                // Add active class to the current mode button
+                if (activeMode === 0) {
+                    renderRawBtn.classList.add('active');
+                } else if (activeMode === 1) {
+                    renderLUTBtn.classList.add('active');
                 }
             }
         }
