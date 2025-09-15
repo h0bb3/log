@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>plasma - WASM Effect</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: block;
+            cursor: none;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        button:hover {
+            background: rgba(69, 160, 73, 0.9);
+        }
+        
+        button:disabled {
+            background: rgba(102, 102, 102, 0.8);
+            cursor: not-allowed;
+        }
+        
+        .info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .fps-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            color: white;
+            font-size: 16px;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    
+    <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" disabled>Stop</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+    
+    <div class="fps-display" id="fpsDisplay">
+        <div>JS FPS: 0</div>
+        <div>C++ FPS: 0</div>
+    </div>
+    
+    <div class="info">
+        <p>plasma - Press 1 for renderRaw, 2 for renderLUT, 3 for renderPaletteLUT (Current: renderRaw)</p>
+    </div>
+
+    <script src="plasma.js"></script>
+    <script>
+        // JavaScript interface for the WASM effect
+        let wasmModule = null;
+        let isRunning = false;
+        let pixelBuffer = null;
+        let imageData = null;
+        let fpsCounter = 0;
+        let lastTime = 0;
+
+        // Initialize the demo when the page loads
+        window.addEventListener('load', async () => {
+            console.log('Page loaded, setting up WASM module...');
+            try {
+                // Check if module is already initialized
+                if (Module && Module._initDemo) {
+                    console.log('WASM module already initialized');
+                    setupDemo();
+                } else {
+                    // Wait for the WASM module to be ready
+                    Module.onRuntimeInitialized = function() {
+                        console.log('WASM module initialized');
+                        setupDemo();
+                    };
+                }
+                
+                function setupDemo() {
+                    console.log('Available functions:', Object.keys(Module).filter(key => key.startsWith('_')));
+                    
+                    // Get the canvas and buttons
+                    const canvas = document.getElementById('canvas');
+                    const startBtn = document.getElementById('startBtn');
+                    const stopBtn = document.getElementById('stopBtn');
+                    const resetBtn = document.getElementById('resetBtn');
+                    
+                    // Button event listeners
+                    startBtn.addEventListener('click', () => {
+                        if (!isRunning) {
+                            startDemo();
+                        }
+                    });
+                    
+                    stopBtn.addEventListener('click', () => {
+                        if (isRunning) {
+                            stopDemo();
+                        }
+                    });
+                    
+                    resetBtn.addEventListener('click', () => {
+                        resetDemo();
+                    });
+                    
+                    // Mouse tracking for the canvas
+                    canvas.addEventListener('mousemove', (e) => {
+                        const rect = canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        // Update mouse position in WASM - only if module is fully ready
+                        if (Module && Module._updateMousePosition && typeof Module._updateMousePosition === 'function') {
+                            try {
+                                Module._updateMousePosition(x, y);
+                            } catch (error) {
+                                console.warn('Failed to update mouse position:', error);
+                            }
+                        }
+                    });
+                    
+                    // Keyboard event handling
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === '1') {
+                            // Switch to renderRaw mode
+                            if (Module && Module._setRenderMode) {
+                                Module._setRenderMode(0);
+                                updateRenderModeDisplay();
+                            }
+                        } else if (e.key === '2') {
+                            // Switch to renderLUT mode
+                            if (Module && Module._setRenderMode) {
+                                Module._setRenderMode(1);
+                                updateRenderModeDisplay();
+                            }
+                        }
+                    });
+                    
+                    console.log('WASM module loaded successfully');
+                    
+                    // Initialize pixel buffer and image data
+                    const ctx = canvas.getContext('2d');
+                    imageData = ctx.createImageData(canvas.width, canvas.height);
+                    
+                    // Handle window resize for fullscreen
+                    window.addEventListener('resize', () => {
+                        resizeCanvas();
+                    });
+                    resizeCanvas();
+                    
+                    // Don't start the rendering loop yet - wait for user to click Start
+                    console.log('Setup complete, ready for user to start demo');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load WASM module:', error);
+                document.body.innerHTML = '<h1>Error loading WASM module</h1><p>Please make sure plasma.wasm is built and available.</p>';
+            }
+            
+            // Add a timeout to check if Module.onRuntimeInitialized was called
+            setTimeout(() => {
+                if (!Module || !Module._initDemo) {
+                    console.error('WASM module not loaded after 5 seconds');
+                    console.log('Module object:', Module);
+                    console.log('Available Module properties:', Object.keys(Module || {}));
+                    
+                    // Enable start button even if WASM didn't load
+                    const startBtn = document.getElementById('startBtn');
+                    if (startBtn) {
+                        startBtn.disabled = false;
+                        startBtn.addEventListener('click', () => {
+                            console.log('Start button clicked but WASM not loaded');
+                            alert('WASM module failed to load. Please check the console for errors.');
+                        });
+                    }
+                }
+            }, 5000);
+        });
+
+        function resizeCanvas() {
+            // Canvas size is fixed at 640x480, no need to resize
+            // The CSS will stretch it to full screen
+        }
+
+        let renderingLoopId = null;
+        
+        function startRenderingLoop() {
+            function renderFrame() {
+                if (!isRunning) return;
+                
+                if (Module && Module._getPixelBuffer && imageData) {
+                    try {
+                        // Get the pixel buffer from WASM
+                        const bufferPtr = Module._getPixelBuffer();
+                        if (bufferPtr) {
+                            // Create a Uint8Array view of the WASM memory (fixed 640x480)
+                            const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, 640 * 480 * 4);
+                            
+                            // Copy pixel data to ImageData
+                            imageData.data.set(buffer);
+                            
+                            // Draw to canvas
+                            const ctx = canvas.getContext('2d');
+                            ctx.putImageData(imageData, 0, 0);
+                            
+                            // Update FPS display
+                            const fpsDisplay = document.getElementById('fpsDisplay');
+                            const cppFps = Module._getCppFps ? Module._getCppFps() : 0;
+                            fpsDisplay.innerHTML = `<div>C++ FPS: ${Math.round(cppFps)}</div>`;
+                        }
+                    } catch (error) {
+                        console.warn('Error in rendering loop:', error);
+                    }
+                }
+                
+                // Continue the rendering loop
+                renderingLoopId = requestAnimationFrame(renderFrame);
+            }
+            
+            // Start the rendering loop
+            renderingLoopId = requestAnimationFrame(renderFrame);
+        }
+        
+        function stopRenderingLoop() {
+            if (renderingLoopId) {
+                cancelAnimationFrame(renderingLoopId);
+                renderingLoopId = null;
+            }
+        }
+
+        function startDemo() {
+            console.log('startDemo called, isRunning:', isRunning);
+            console.log('Module object:', Module);
+            console.log('Module._initDemo:', Module._initDemo);
+            
+            if (Module && Module._initDemo) {
+                try {
+                    Module._initDemo();
+                    // If we get here, the main loop started successfully
+                    isRunning = true;
+                    
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    
+                    console.log('Demo started successfully');
+                } catch (error) {
+                    // "unwind" is expected when starting the main loop
+                    if (error === 'unwind') {
+                        console.log('Main loop started (unwind is expected)');
+                        isRunning = true;
+                        
+                        document.getElementById('startBtn').disabled = true;
+                        document.getElementById('stopBtn').disabled = false;
+                        
+                        // Start the JavaScript rendering loop
+                        startRenderingLoop();
+                        
+                        // Update render mode display
+                        updateRenderModeDisplay();
+                        
+                    } else {
+                        console.error('Error starting demo:', error);
+                        isRunning = false;
+                        document.getElementById('startBtn').disabled = false;
+                        document.getElementById('stopBtn').disabled = true;
+                    }
+                }
+            } else {
+                console.error('Module or _initDemo not available');
+            }
+        }
+
+        function stopDemo() {
+            console.log('stopDemo called, isRunning:', isRunning);
+            
+            // Stop the rendering loop first
+            stopRenderingLoop();
+            
+            if (Module && Module._stopDemo) {
+                try {
+                    Module._stopDemo();
+                } catch (error) {
+                    console.error('Error stopping demo:', error);
+                }
+            }
+            
+            isRunning = false;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            
+            console.log('Demo stopped');
+        }
+
+        function resetDemo() {
+            if (Module && Module._resetDemo) {
+                Module._resetDemo();
+                
+                // Clear the canvas
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                console.log('Demo reset');
+            }
+        }
+        
+        function updateRenderModeDisplay() {
+            if (Module && Module._getRenderMode) {
+                const mode = Module._getRenderMode();
+                const modeText = mode === 0 ? 'renderRaw' : 'renderLUT';
+                const infoElement = document.querySelector('.info p');
+                if (infoElement) {
+                    infoElement.innerHTML = `plasma - Press 1 for renderRaw, 2 for renderLUT (Current: ${modeText})`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
