@@ -256,16 +256,12 @@
 <body>
     <canvas id="canvas"></canvas>
     
-    <!-- FPS Overlay -->
     <div class="fps-overlay hidden" id="fpsOverlay">
         Internal FPS: 0
     </div>
     
-    <!-- Side Panel -->
     <div class="side-panel active" id="sidePanel">
-        <!-- Panel Content -->
         <div class="panel-content">
-        <!-- Basic Controls Section -->
         <div class="menu-section">
             <h3>Controls</h3>
             <div class="menu-controls horizontal">
@@ -275,15 +271,12 @@
             </div>
         </div>
         
-        <!-- Render Mode Section - Dynamically populated -->
         <div class="menu-section" id="renderModeSection" style="display: none;">
             <h3>Render Mode</h3>
             <div class="menu-controls" id="renderModeControls">
-                <!-- Render mode buttons will be dynamically created here -->
-            </div>
+                </div>
         </div>
         
-        <!-- Aspect Ratio Section -->
         <div class="menu-section">
             <h3>Aspect Ratio</h3>
             <div class="menu-controls horizontal">
@@ -293,7 +286,6 @@
             </div>
         </div>
         
-        <!-- Resolution Section -->
         <div class="menu-section">
             <h3 id="resolutionHeadline">Resolution: 512x320</h3>
             <div class="menu-controls horizontal">
@@ -302,7 +294,6 @@
             </div>
         </div>
         
-        <!-- Performance Section -->
         <div class="menu-section">
             <h3>Performance</h3>
             <div class="fps-display" id="fpsDisplay">
@@ -313,7 +304,6 @@
             </div>
         </div>
         
-        <!-- Info Section -->
         <div class="menu-section">
             <h3>Info</h3>
             <div class="info-text" id="infoText">
@@ -322,7 +312,6 @@
         </div>
         </div>
         
-        <!-- Panel Tab -->
         <div class="panel-tab" id="panelTab"></div>
     </div>
 
@@ -344,14 +333,15 @@
         // WASM Module State Management
         let wasmInitialized = false;
         let wasmInitializationPromise = null;
+        let wasmRuntimeReady = false;
         
         // Aspect ratio configurations - loaded dynamically from WASM
         let aspectRatios = [];
         
         // Safe WASM function wrapper
         function safeWasmCall(funcName, ...args) {
-            if (!wasmInitialized || !Module || !Module[funcName]) {
-                console.warn(`WASM function ${funcName} called before module initialization or function not available`);
+            if (!wasmInitialized || !wasmRuntimeReady || !Module || !Module[funcName]) {
+                console.warn(`WASM function ${funcName} called before module/runtime initialization or function not available`);
                 return null;
             }
             
@@ -371,8 +361,8 @@
 
         // Load aspect ratios from WASM module
         function loadAspectRatios() {
-            if (!wasmInitialized) {
-                console.warn('WASM module not initialized, using fallback aspect ratios');
+            if (!wasmInitialized || !wasmRuntimeReady) {
+                console.warn('WASM module or runtime not initialized, using fallback aspect ratios');
                 aspectRatios = [
                     { name: '4:3', width: 512, height: 384 },
                     { name: '16:10', width: 512, height: 320 },
@@ -415,246 +405,237 @@
                 console.log('Using fallback aspect ratios:', aspectRatios);
             }
         }
-
-        // Initialize the demo when the page loads
-        window.addEventListener('load', async () => {
-            console.log('Page loaded, setting up WASM module...');
-            try {
-                // Check if module is already initialized
-                if (Module && Module._initDemo) {
-                    console.log('WASM module already initialized');
-                    wasmInitialized = true;
-                    setupDemo();
-                } else {
-                    // Wait for the WASM module to be ready
-                    Module.onRuntimeInitialized = function() {
-                        console.log('WASM module initialized');
-                        wasmInitialized = true;
-                        setupDemo();
-                    };
+        
+        // This is the function that will be called when the WASM runtime is ready.
+        function setupDemo() {
+            console.log('Available functions:', Object.keys(Module).filter(key => key.startsWith('_')));
+            
+            // Get the canvas and buttons
+            const canvas = document.getElementById('canvas');
+            const panelTab = document.getElementById('panelTab');
+            const sidePanel = document.getElementById('sidePanel');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const aspect4_3Btn = document.getElementById('aspect4_3Btn');
+            const aspect16_10Btn = document.getElementById('aspect16_10Btn');
+            const aspect10_16Btn = document.getElementById('aspect10_16Btn');
+            const fpsOverlayBtn = document.getElementById('fpsOverlayBtn');
+            const halfResolutionBtn = document.getElementById('halfResolutionBtn');
+            const doubleResolutionBtn = document.getElementById('doubleResolutionBtn');
+            
+            // Panel toggle functionality
+            panelTab.addEventListener('click', () => {
+                menuOpen = !menuOpen;
+                sidePanel.classList.toggle('active', menuOpen);
+            });
+            
+            // Close panel when clicking outside
+            document.addEventListener('click', (e) => {
+                if (menuOpen && !sidePanel.contains(e.target)) {
+                    menuOpen = false;
+                    sidePanel.classList.remove('active');
                 }
-                
-                function setupDemo() {
-                    console.log('Available functions:', Object.keys(Module).filter(key => key.startsWith('_')));
-                    
-                    // Get the canvas and buttons
-                    const canvas = document.getElementById('canvas');
-                    const panelTab = document.getElementById('panelTab');
-                    const sidePanel = document.getElementById('sidePanel');
-                    const startBtn = document.getElementById('startBtn');
-                    const pauseBtn = document.getElementById('pauseBtn');
-                    const resetBtn = document.getElementById('resetBtn');
-                    const aspect4_3Btn = document.getElementById('aspect4_3Btn');
-                    const aspect16_10Btn = document.getElementById('aspect16_10Btn');
-                    const aspect10_16Btn = document.getElementById('aspect10_16Btn');
-                    const fpsOverlayBtn = document.getElementById('fpsOverlayBtn');
-                    const halfResolutionBtn = document.getElementById('halfResolutionBtn');
-                    const doubleResolutionBtn = document.getElementById('doubleResolutionBtn');
-                    
-                    // Panel toggle functionality
-                    panelTab.addEventListener('click', () => {
-                        menuOpen = !menuOpen;
-                        sidePanel.classList.toggle('active', menuOpen);
-                    });
-                    
-                    // Close panel when clicking outside
-                    document.addEventListener('click', (e) => {
-                        if (menuOpen && !sidePanel.contains(e.target)) {
-                            menuOpen = false;
-                            sidePanel.classList.remove('active');
-                        }
-                    });
-                    
-                    // Button event listeners
-                    startBtn.addEventListener('click', () => {
-                        if (isPaused) {
-                            resumeDemo();
-                        }
-                    });
-                    
-                    pauseBtn.addEventListener('click', () => {
-                        if (isRunning && !isPaused) {
-                            pauseDemo();
-                        }
-                    });
-                    
-                    resetBtn.addEventListener('click', () => {
-                        resetDemo();
-                    });
-                    
-                    // Render mode button event listeners are now handled dynamically
-                    
-                    // Aspect ratio button event listeners
-                    aspect4_3Btn.addEventListener('click', () => {
-                        changeAspectRatio(0);
-                    });
-                    
-                    aspect16_10Btn.addEventListener('click', () => {
-                        changeAspectRatio(1);
-                    });
-                    
-                    aspect10_16Btn.addEventListener('click', () => {
-                        changeAspectRatio(2);
-                    });
-                    
-                    // FPS overlay button event listener
-                    fpsOverlayBtn.addEventListener('click', () => {
-                        toggleFpsOverlay();
-                    });
-                    
-                    // Resolution button event listeners
-                    halfResolutionBtn.addEventListener('click', () => {
-                        changeResolution('half');
-                    });
-                    
-                    doubleResolutionBtn.addEventListener('click', () => {
-                        changeResolution('double');
-                    });
-                    
-                    // Mouse tracking for the canvas
-                    canvas.addEventListener('mousemove', (e) => {
-                        const rect = canvas.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        
-                        // Update mouse position in WASM using safe wrapper
-                        safeWasmCall('_updateMousePosition', x, y);
-                    });
-                    
-                    // Keyboard event handling for render modes
-                    document.addEventListener('keydown', (e) => {
-                        const keyNum = parseInt(e.key);
-                        if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= renderModeButtons.length) {
-                            const modeIndex = keyNum - 1;
-                            if (safeWasmCall('_setRenderMode', modeIndex) !== null) {
-                                updateRenderModeDisplay();
-                                updateRenderModeButtons(modeIndex);
-                            }
-                        }
-                    });
-                    
-                    console.log('WASM module loaded successfully');
-                    
-                    // Function to update aspect ratio button states
-                    function updateAspectRatioButtons(activeIndex) {
-                        const buttons = [aspect4_3Btn, aspect16_10Btn, aspect10_16Btn];
-                        buttons.forEach((btn, index) => {
-                            if (btn) {
-                                btn.classList.toggle('active', index === activeIndex);
-                            }
-                        });
-                    }
-                    
-                    // Function to change aspect ratio
-                    function changeAspectRatio(index) {
-                        currentAspectRatio = index;
-                        updateAspectRatioButtons(index);
-                        
-                        const canvas = document.getElementById('canvas');
-                        if (canvas) {
-                            // Try to update WASM aspect ratio
-                            safeWasmCall('_setAspectRatio', index);
-                            
-                            // Update canvas size
-                            if (aspectRatios.length === 0) {
-                                console.warn('Aspect ratios not loaded yet, cannot change aspect ratio');
-                                return;
-                            }
-                            const ratio = aspectRatios[index];
-                            canvas.width = ratio.width;
-                            canvas.height = ratio.height;
-                            
-                            // Recreate imageData with new dimensions
-                            imageData = new ImageData(ratio.width, ratio.height);
-                            console.log('Updated aspect ratio to', ratio.name, ':', ratio.width, 'x', ratio.height);
-                            
-                            // Update resolution display
-                            updateResolutionDisplay();
-                            
-                            // Update headline with current resolution
-                            const resolutionHeadline = document.getElementById('resolutionHeadline');
-                            if (resolutionHeadline) {
-                                resolutionHeadline.textContent = `Resolution: ${ratio.width}x${ratio.height}`;
-                            }
-                            
-                            // If currently running, restart the rendering loop
-                            if (isRunning) {
-                                stopRenderingLoop();
-                                setTimeout(() => {
-                                    startRenderingLoop();
-                                }, 50);
-                            }
-                        }
-                    }
-                    
-                    // Initialize with default aspect ratio (16:10)
-                    currentAspectRatio = 1; // 16:10
-                    updateAspectRatioButtons(1);
-                    
-                    // Set up the canvas size first
-                    if (canvas) {
-                        canvas.width = 512;
-                        canvas.height = 320;
-                        console.log('Canvas initialized with default size: 512x320');
-                    }
-                    
-                    // Wait a bit for WASM to be fully ready, then set aspect ratio and initialize dynamic UI
-                    setTimeout(() => {
-                        // Set initial aspect ratio using safe wrapper
-                        if (safeWasmCall('_setAspectRatio', 1) !== null) {
-                            console.log('Aspect ratio set to 16:10');
-                        }
-                        
-                        // Initialize dynamic UI elements after WASM is fully ready
-                        initializeDynamicUI();
-                    }, 100);
-                    
-                    // Handle window resize for fullscreen
-                    window.addEventListener('resize', () => {
-                        // Auto-detect best aspect ratio based on window size
-                        const bestAspectRatio = detectBestAspectRatio();
-                        if (bestAspectRatio !== currentAspectRatio) {
-                            changeAspectRatio(bestAspectRatio);
-                        } else {
-                            resizeCanvas();
-                        }
-                    });
-                    
-                    // Wait a bit for WASM to be fully ready, then load aspect ratios and start demo
-                    setTimeout(() => {
-                        loadAspectRatios();
-                        
-                        // Update canvas size with loaded aspect ratios
-                        if (aspectRatios.length > 0) {
-                            const canvas = document.getElementById('canvas');
-                            const ratio = aspectRatios[currentAspectRatio];
-                            if (canvas && ratio) {
-                                canvas.width = ratio.width;
-                                canvas.height = ratio.height;
-                                console.log('Canvas updated with aspect ratio:', ratio.name, ratio.width, 'x', ratio.height);
-                            }
-                        }
-                        
-                        // Auto-start the demo after aspect ratios are loaded
-                        console.log('Setup complete, auto-starting demo');
-                        setTimeout(() => {
-                            startDemo();
-                        }, 50);
-                    }, 100);
+            });
+            
+            // Button event listeners
+            startBtn.addEventListener('click', () => {
+                if (isPaused) {
+                    resumeDemo();
+                } else if (!isRunning) {
+                    startDemo();
                 }
+            });
+            
+            pauseBtn.addEventListener('click', () => {
+                if (isRunning && !isPaused) {
+                    pauseDemo();
+                }
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                resetDemo();
+            });
+            
+            // Aspect ratio button event listeners
+            aspect4_3Btn.addEventListener('click', () => {
+                changeAspectRatio(0);
+            });
+            
+            aspect16_10Btn.addEventListener('click', () => {
+                changeAspectRatio(1);
+            });
+            
+            aspect10_16Btn.addEventListener('click', () => {
+                changeAspectRatio(2);
+            });
+            
+            // FPS overlay button event listener
+            fpsOverlayBtn.addEventListener('click', () => {
+                toggleFpsOverlay();
+            });
+            
+            // Resolution button event listeners
+            halfResolutionBtn.addEventListener('click', () => {
+                changeResolution('half');
+            });
+            
+            doubleResolutionBtn.addEventListener('click', () => {
+                changeResolution('double');
+            });
+            
+            // Mouse tracking for the canvas. It's now safe to add this listener.
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-            } catch (error) {
-                console.error('Failed to load WASM module:', error);
-                document.body.innerHTML = '<h1>Error loading WASM module</h1><p>Please make sure interference.wasm is built and available.</p>';
+                // Update mouse position in WASM using safe wrapper
+                safeWasmCall('_updateMousePosition', x, y);
+            });
+            
+            // Keyboard event handling for render modes
+            document.addEventListener('keydown', (e) => {
+                const keyNum = parseInt(e.key);
+                if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= renderModeButtons.length) {
+                    const modeIndex = keyNum - 1;
+                    if (safeWasmCall('_setRenderMode', modeIndex) !== null) {
+                        updateRenderModeDisplay();
+                        updateRenderModeButtons(modeIndex);
+                    }
+                }
+            });
+            
+            console.log('WASM module loaded successfully');
+            
+            // Function to update aspect ratio button states
+            function updateAspectRatioButtons(activeIndex) {
+                const buttons = [aspect4_3Btn, aspect16_10Btn, aspect10_16Btn];
+                buttons.forEach((btn, index) => {
+                    if (btn) {
+                        btn.classList.toggle('active', index === activeIndex);
+                    }
+                });
             }
             
-            // Add a timeout to check if Module.onRuntimeInitialized was called
-            setTimeout(() => {
-                if (!Module || !Module._initDemo) {
-                    console.error('WASM module not loaded after 5 seconds');
-                    console.log('Module object:', Module);
-                    console.log('Available Module properties:', Object.keys(Module || {}));
+            // Function to change aspect ratio
+            function changeAspectRatio(index) {
+                currentAspectRatio = index;
+                updateAspectRatioButtons(index);
+                
+                const canvas = document.getElementById('canvas');
+                if (canvas) {
+                    // Try to update WASM aspect ratio
+                    safeWasmCall('_setAspectRatio', index);
                     
+                    // Update canvas size
+                    if (aspectRatios.length === 0) {
+                        console.warn('Aspect ratios not loaded yet, cannot change aspect ratio');
+                        return;
+                    }
+                    const ratio = aspectRatios[index];
+                    canvas.width = ratio.width;
+                    canvas.height = ratio.height;
+                    
+                    // Recreate imageData with new dimensions
+                    imageData = new ImageData(ratio.width, ratio.height);
+                    console.log('Updated aspect ratio to', ratio.name, ':', ratio.width, 'x', ratio.height);
+                    
+                    // Update resolution display
+                    updateResolutionDisplay();
+                    
+                    // Update headline with current resolution
+                    const resolutionHeadline = document.getElementById('resolutionHeadline');
+                    if (resolutionHeadline) {
+                        resolutionHeadline.textContent = `Resolution: ${ratio.width}x${ratio.height}`;
+                    }
+                    
+                    // If currently running, restart the rendering loop
+                    if (isRunning) {
+                        stopRenderingLoop();
+                        setTimeout(() => {
+                            startRenderingLoop();
+                        }, 50);
+                    }
+                }
+            }
+            
+            // Initialize with default aspect ratio (16:10)
+            currentAspectRatio = 1; // 16:10
+            updateAspectRatioButtons(1);
+            
+            // Set up the canvas size first
+            if (canvas) {
+                canvas.width = 512;
+                canvas.height = 320;
+                console.log('Canvas initialized with default size: 512x320');
+            }
+            
+            // Initialize dynamic UI elements after WASM is fully ready
+            initializeDynamicUI();
+            
+            // Handle window resize for fullscreen
+            window.addEventListener('resize', () => {
+                // Auto-detect best aspect ratio based on window size
+                const bestAspectRatio = detectBestAspectRatio();
+                if (bestAspectRatio !== currentAspectRatio) {
+                    changeAspectRatio(bestAspectRatio);
+                } else {
+                    resizeCanvas();
+                }
+            });
+            
+            // Load aspect ratios and start demo
+            loadAspectRatios();
+            
+            // Update canvas size with loaded aspect ratios
+            if (aspectRatios.length > 0) {
+                const canvas = document.getElementById('canvas');
+                const ratio = aspectRatios[currentAspectRatio];
+                if (canvas && ratio) {
+                    canvas.width = ratio.width;
+                    canvas.height = ratio.height;
+                    console.log('Canvas updated with aspect ratio:', ratio.name, ratio.width, 'x', ratio.height);
+                }
+            }
+            
+            // Set initial aspect ratio using safe wrapper
+            if (safeWasmCall('_setAspectRatio', 1) !== null) {
+                console.log('Aspect ratio set to 16:10');
+            }
+            
+            // Auto-start the demo after aspect ratios are loaded
+            console.log('Setup complete, auto-starting demo');
+            setTimeout(() => {
+                startDemo();
+            }, 50);
+        }
+
+        // =====================================================================
+        // == CORRECTED INITIALIZATION LOGIC
+        // =====================================================================
+        window.addEventListener('load', () => {
+            // The Module object is created by 'interference.js'.
+            // We just need to tell it what to do when it's finished loading.
+            
+            // This is the crucial part:
+            // Assign your main setup function to the onRuntimeInitialized hook.
+            // Emscripten will call this for you at the correct time.
+            Module.onRuntimeInitialized = function() {
+                console.log('✅ WASM runtime is ready. Setting up the demo.');
+                
+                // Set your state flags now that it's truly ready.
+                wasmInitialized = true;
+                wasmRuntimeReady = true;
+                
+                // Now it's safe to run your setup code.
+                setupDemo();
+            };
+
+            // Your existing timeout to catch catastrophic failures is still a good idea.
+            setTimeout(() => {
+                if (!wasmRuntimeReady) {
+                    console.error('❌ WASM module failed to initialize after 5 seconds.');
                     // Enable start button even if WASM didn't load
                     const startBtn = document.getElementById('startBtn');
                     if (startBtn) {
@@ -670,8 +651,8 @@
 
         // Initialize dynamic UI elements based on WASM module capabilities
         function initializeDynamicUI() {
-            if (!wasmInitialized) {
-                console.warn('WASM module not initialized for dynamic UI initialization');
+            if (!wasmInitialized || !wasmRuntimeReady) {
+                console.warn('WASM module or runtime not initialized for dynamic UI initialization');
                 return;
             }
             
@@ -911,8 +892,8 @@
             console.log('Module object:', Module);
             console.log('Module._initDemo:', Module._initDemo);
             
-            if (!wasmInitialized) {
-                console.error('WASM module not initialized');
+            if (!wasmInitialized || !wasmRuntimeReady) {
+                console.error('WASM module or runtime not initialized');
                 return;
             }
             
@@ -1010,7 +991,7 @@
         }
         
         function updateRenderModeDisplay() {
-            if (!wasmInitialized) return;
+            if (!wasmInitialized || !wasmRuntimeReady) return;
             
             const mode = safeWasmCallWithDefault('_getRenderMode', 0);
             const modeNamePtr = safeWasmCall('_getRenderModeName', mode);
@@ -1055,8 +1036,8 @@
         }
         
         function changeResolution(operation) {
-            if (!wasmInitialized) {
-                console.warn('WASM module not initialized for resolution change');
+            if (!wasmInitialized || !wasmRuntimeReady) {
+                console.warn('WASM module or runtime not initialized for resolution change');
                 return;
             }
             
@@ -1094,7 +1075,7 @@
         }
         
         function updateResolutionDisplay() {
-            if (!wasmInitialized) {
+            if (!wasmInitialized || !wasmRuntimeReady) {
                 return;
             }
             
