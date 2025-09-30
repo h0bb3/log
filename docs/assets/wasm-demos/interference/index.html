@@ -341,24 +341,60 @@
         let fpsOverlayVisible = false;
         let renderModeButtons = [];
         
+        // WASM Module State Management
+        let wasmInitialized = false;
+        let wasmInitializationPromise = null;
+        
         // Aspect ratio configurations - loaded dynamically from WASM
         let aspectRatios = [];
+        
+        // Safe WASM function wrapper
+        function safeWasmCall(funcName, ...args) {
+            if (!wasmInitialized || !Module || !Module[funcName]) {
+                console.warn(`WASM function ${funcName} called before module initialization or function not available`);
+                return null;
+            }
+            
+            try {
+                return Module[funcName](...args);
+            } catch (error) {
+                console.warn(`Error calling WASM function ${funcName}:`, error);
+                return null;
+            }
+        }
+        
+        // Safe WASM function wrapper that returns a default value
+        function safeWasmCallWithDefault(funcName, defaultValue, ...args) {
+            const result = safeWasmCall(funcName, ...args);
+            return result !== null ? result : defaultValue;
+        }
 
         // Load aspect ratios from WASM module
         function loadAspectRatios() {
-            if (!Module || !Module._getAspectRatioCount) {
-                console.error('WASM module not ready for aspect ratio loading');
+            if (!wasmInitialized) {
+                console.warn('WASM module not initialized, using fallback aspect ratios');
+                aspectRatios = [
+                    { name: '4:3', width: 512, height: 384 },
+                    { name: '16:10', width: 512, height: 320 },
+                    { name: '10:16', width: 256, height: 410 }
+                ];
                 return;
             }
             
             try {
-                const count = Module._getAspectRatioCount();
+                const count = safeWasmCallWithDefault('_getAspectRatioCount', 0);
+                if (count === 0) {
+                    throw new Error('No aspect ratios available');
+                }
+                
                 aspectRatios = [];
                 
                 for (let i = 0; i < count; i++) {
-                    const name = Module.UTF8ToString(Module._getAspectRatioName(i));
-                    const width = Module._getAspectRatioWidth(i);
-                    const height = Module._getAspectRatioHeight(i);
+                    const namePtr = safeWasmCall('_getAspectRatioName', i);
+                    const width = safeWasmCallWithDefault('_getAspectRatioWidth', 512, i);
+                    const height = safeWasmCallWithDefault('_getAspectRatioHeight', 320, i);
+                    
+                    const name = namePtr ? Module.UTF8ToString(namePtr) : `Ratio ${i + 1}`;
                     
                     aspectRatios.push({
                         name: name,
@@ -369,7 +405,7 @@
                 
                 console.log('Loaded aspect ratios from WASM:', aspectRatios);
             } catch (error) {
-                console.warn('Failed to load aspect ratios from WASM, module may not be fully initialized:', error);
+                console.warn('Failed to load aspect ratios from WASM:', error);
                 // Set default aspect ratios as fallback
                 aspectRatios = [
                     { name: '4:3', width: 512, height: 384 },
@@ -387,11 +423,13 @@
                 // Check if module is already initialized
                 if (Module && Module._initDemo) {
                     console.log('WASM module already initialized');
+                    wasmInitialized = true;
                     setupDemo();
                 } else {
                     // Wait for the WASM module to be ready
                     Module.onRuntimeInitialized = function() {
                         console.log('WASM module initialized');
+                        wasmInitialized = true;
                         setupDemo();
                     };
                 }
@@ -479,14 +517,8 @@
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        // Update mouse position in WASM - only if module is fully ready
-                        if (Module && Module._updateMousePosition && typeof Module._updateMousePosition === 'function') {
-                            try {
-                                Module._updateMousePosition(x, y);
-                            } catch (error) {
-                                console.warn('Failed to update mouse position:', error);
-                            }
-                        }
+                        // Update mouse position in WASM using safe wrapper
+                        safeWasmCall('_updateMousePosition', x, y);
                     });
                     
                     // Keyboard event handling for render modes
@@ -494,8 +526,7 @@
                         const keyNum = parseInt(e.key);
                         if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= renderModeButtons.length) {
                             const modeIndex = keyNum - 1;
-                            if (Module && Module._setRenderMode) {
-                                Module._setRenderMode(modeIndex);
+                            if (safeWasmCall('_setRenderMode', modeIndex) !== null) {
                                 updateRenderModeDisplay();
                                 updateRenderModeButtons(modeIndex);
                             }
@@ -520,41 +551,38 @@
                         updateAspectRatioButtons(index);
                         
                         const canvas = document.getElementById('canvas');
-                        if (canvas && Module && Module._setAspectRatio) {
-                            try {
-                                Module._setAspectRatio(index);
-                                
-                                // Update canvas size
-                                if (aspectRatios.length === 0) {
-                                    console.warn('Aspect ratios not loaded yet, cannot change aspect ratio');
-                                    return;
-                                }
-                                const ratio = aspectRatios[index];
-                                canvas.width = ratio.width;
-                                canvas.height = ratio.height;
-                                
-                                // Recreate imageData with new dimensions
-                                imageData = new ImageData(ratio.width, ratio.height);
-                                console.log('Updated aspect ratio to', ratio.name, ':', ratio.width, 'x', ratio.height);
-                                
-                                // Update resolution display
-                                updateResolutionDisplay();
-                                
-                                // Update headline with current resolution
-                                const resolutionHeadline = document.getElementById('resolutionHeadline');
-                                if (resolutionHeadline) {
-                                    resolutionHeadline.textContent = `Resolution: ${ratio.width}x${ratio.height}`;
-                                }
-                                
-                                // If currently running, restart the rendering loop
-                                if (isRunning) {
-                                    stopRenderingLoop();
-                                    setTimeout(() => {
-                                        startRenderingLoop();
-                                    }, 50);
-                                }
-                            } catch (error) {
-                                console.error('Error changing aspect ratio:', error);
+                        if (canvas) {
+                            // Try to update WASM aspect ratio
+                            safeWasmCall('_setAspectRatio', index);
+                            
+                            // Update canvas size
+                            if (aspectRatios.length === 0) {
+                                console.warn('Aspect ratios not loaded yet, cannot change aspect ratio');
+                                return;
+                            }
+                            const ratio = aspectRatios[index];
+                            canvas.width = ratio.width;
+                            canvas.height = ratio.height;
+                            
+                            // Recreate imageData with new dimensions
+                            imageData = new ImageData(ratio.width, ratio.height);
+                            console.log('Updated aspect ratio to', ratio.name, ':', ratio.width, 'x', ratio.height);
+                            
+                            // Update resolution display
+                            updateResolutionDisplay();
+                            
+                            // Update headline with current resolution
+                            const resolutionHeadline = document.getElementById('resolutionHeadline');
+                            if (resolutionHeadline) {
+                                resolutionHeadline.textContent = `Resolution: ${ratio.width}x${ratio.height}`;
+                            }
+                            
+                            // If currently running, restart the rendering loop
+                            if (isRunning) {
+                                stopRenderingLoop();
+                                setTimeout(() => {
+                                    startRenderingLoop();
+                                }, 50);
                             }
                         }
                     }
@@ -567,17 +595,14 @@
                     if (canvas) {
                         canvas.width = 512;
                         canvas.height = 320;
+                        console.log('Canvas initialized with default size: 512x320');
                     }
                     
                     // Wait a bit for WASM to be fully ready, then set aspect ratio and initialize dynamic UI
                     setTimeout(() => {
-                        if (Module && Module._setAspectRatio) {
-                            try {
-                                Module._setAspectRatio(1);
-                                console.log('Aspect ratio set to 16:10');
-                            } catch (error) {
-                                console.warn('Failed to set aspect ratio:', error);
-                            }
+                        // Set initial aspect ratio using safe wrapper
+                        if (safeWasmCall('_setAspectRatio', 1) !== null) {
+                            console.log('Aspect ratio set to 16:10');
                         }
                         
                         // Initialize dynamic UI elements after WASM is fully ready
@@ -595,15 +620,26 @@
                         }
                     });
                     
-                    // Wait a bit for WASM to be fully ready, then load aspect ratios
+                    // Wait a bit for WASM to be fully ready, then load aspect ratios and start demo
                     setTimeout(() => {
                         loadAspectRatios();
-                    }, 100);
-                    
-                    // Auto-start the demo
-                    console.log('Setup complete, auto-starting demo');
-                    setTimeout(() => {
-                        startDemo();
+                        
+                        // Update canvas size with loaded aspect ratios
+                        if (aspectRatios.length > 0) {
+                            const canvas = document.getElementById('canvas');
+                            const ratio = aspectRatios[currentAspectRatio];
+                            if (canvas && ratio) {
+                                canvas.width = ratio.width;
+                                canvas.height = ratio.height;
+                                console.log('Canvas updated with aspect ratio:', ratio.name, ratio.width, 'x', ratio.height);
+                            }
+                        }
+                        
+                        // Auto-start the demo after aspect ratios are loaded
+                        console.log('Setup complete, auto-starting demo');
+                        setTimeout(() => {
+                            startDemo();
+                        }, 50);
                     }, 100);
                 }
                 
@@ -634,77 +670,63 @@
 
         // Initialize dynamic UI elements based on WASM module capabilities
         function initializeDynamicUI() {
-            if (!Module) {
-                console.warn('Module not available for dynamic UI initialization');
+            if (!wasmInitialized) {
+                console.warn('WASM module not initialized for dynamic UI initialization');
                 return;
             }
             
             // Get render mode count and create buttons dynamically
-            if (Module._getRenderModeCount) {
-                try {
-                    const modeCount = Module._getRenderModeCount();
-                    console.log('Render mode count:', modeCount);
+            const modeCount = safeWasmCallWithDefault('_getRenderModeCount', 0);
+            console.log('Render mode count:', modeCount);
+            
+            if (modeCount > 0) {
+                const renderModeSection = document.getElementById('renderModeSection');
+                const renderModeControls = document.getElementById('renderModeControls');
                 
-                if (modeCount > 0) {
-                    const renderModeSection = document.getElementById('renderModeSection');
-                    const renderModeControls = document.getElementById('renderModeControls');
-                    
-                    // Show the render mode section
-                    renderModeSection.style.display = 'block';
-                    
-                    // Clear existing buttons
-                    renderModeControls.innerHTML = '';
-                    renderModeButtons = [];
-                    
-                    // Create buttons for each render mode
-                    for (let i = 0; i < modeCount; i++) {
-                        let modeName = `Mode ${i + 1}`;
-                        if (Module._getRenderModeName) {
-                            const modeNamePtr = Module._getRenderModeName(i);
-                            if (modeNamePtr) {
-                                modeName = Module.UTF8ToString(modeNamePtr);
-                            }
-                        }
-                        const button = document.createElement('button');
-                        button.id = `renderModeBtn${i}`;
-                        button.className = 'render-mode-btn';
-                        button.textContent = modeName;
-                        button.addEventListener('click', () => {
-                            if (Module && Module._setRenderMode) {
-                                Module._setRenderMode(i);
-                                updateRenderModeDisplay();
-                                updateRenderModeButtons(i);
-                            }
-                        });
-                        
-                        renderModeControls.appendChild(button);
-                        renderModeButtons.push(button);
+                // Show the render mode section
+                renderModeSection.style.display = 'block';
+                
+                // Clear existing buttons
+                renderModeControls.innerHTML = '';
+                renderModeButtons = [];
+                
+                // Create buttons for each render mode
+                for (let i = 0; i < modeCount; i++) {
+                    let modeName = `Mode ${i + 1}`;
+                    const modeNamePtr = safeWasmCall('_getRenderModeName', i);
+                    if (modeNamePtr) {
+                        modeName = Module.UTF8ToString(modeNamePtr);
                     }
                     
-                    // Set initial active button
-                    const currentMode = Module._getRenderMode ? Module._getRenderMode() : 0;
-                    updateRenderModeButtons(currentMode);
+                    const button = document.createElement('button');
+                    button.id = `renderModeBtn${i}`;
+                    button.className = 'render-mode-btn';
+                    button.textContent = modeName;
+                    button.addEventListener('click', () => {
+                        if (safeWasmCall('_setRenderMode', i) !== null) {
+                            updateRenderModeDisplay();
+                            updateRenderModeButtons(i);
+                        }
+                    });
+                    
+                    renderModeControls.appendChild(button);
+                    renderModeButtons.push(button);
                 }
-                } catch (error) {
-                    console.warn('Failed to initialize render modes:', error);
-                }
+                
+                // Set initial active button
+                const currentMode = safeWasmCallWithDefault('_getRenderMode', 0);
+                updateRenderModeButtons(currentMode);
             }
             
             // Update info text
-            if (Module._getEffectInfo) {
-                try {
-                    const infoTextPtr = Module._getEffectInfo();
-                    let infoText = 'Effect information not available';
-                    if (infoTextPtr) {
-                        infoText = Module.UTF8ToString(infoTextPtr);
-                    }
-                    const infoElement = document.getElementById('infoText');
-                    if (infoElement) {
-                        infoElement.innerHTML = infoText;
-                    }
-                } catch (error) {
-                    console.warn('Failed to get effect info:', error);
-                }
+            const infoTextPtr = safeWasmCall('_getEffectInfo');
+            let infoText = 'Effect information not available';
+            if (infoTextPtr) {
+                infoText = Module.UTF8ToString(infoTextPtr);
+            }
+            const infoElement = document.getElementById('infoText');
+            if (infoElement) {
+                infoElement.innerHTML = infoText;
             }
         }
 
@@ -757,14 +779,8 @@
             if (newAspectRatio >= 0 && newAspectRatio < 3) {
                 currentAspectRatio = newAspectRatio;
                 
-                // Update WASM module if available and fully initialized
-                if (Module && Module._changeAspectRatio && typeof Module._changeAspectRatio === 'function') {
-                    try {
-                        Module._changeAspectRatio(newAspectRatio);
-                    } catch (error) {
-                        console.warn('Failed to update WASM aspect ratio:', error);
-                    }
-                }
+                // Update WASM module using safe wrapper
+                safeWasmCall('_changeAspectRatio', newAspectRatio);
                 
                 // Resize canvas
                 resizeCanvas();
@@ -815,59 +831,63 @@
             const canvas = document.getElementById('canvas');
             if (canvas && !imageData) {
                 if (aspectRatios.length === 0) {
-                    console.warn('Aspect ratios not loaded yet, cannot initialize imageData');
-                    return;
+                    console.warn('Aspect ratios not loaded yet, using default dimensions for imageData');
+                    // Use default dimensions if aspect ratios aren't loaded yet
+                    imageData = new ImageData(512, 320);
+                    console.log('Initialized imageData with default dimensions: 512x320');
+                } else {
+                    const aspectRatio = aspectRatios[currentAspectRatio];
+                    imageData = new ImageData(aspectRatio.width, aspectRatio.height);
+                    console.log('Initialized imageData:', aspectRatio.width, 'x', aspectRatio.height);
                 }
-                const aspectRatio = aspectRatios[currentAspectRatio];
-                imageData = new ImageData(aspectRatio.width, aspectRatio.height);
-                console.log('Initialized imageData:', aspectRatio.width, 'x', aspectRatio.height);
             }
             
             function renderFrame() {
                 if (!isRunning) return;
                 
-                if (Module && Module._getPixelBuffer && imageData) {
-                    try {
-                        // Get the pixel buffer from WASM
-                        const bufferPtr = Module._getPixelBuffer();
-                        if (bufferPtr) {
-                            // Get current canvas dimensions
-                            if (aspectRatios.length === 0) {
-                                console.warn('Aspect ratios not loaded yet, cannot render frame');
-                                return;
-                            }
+                if (imageData) {
+                    // Get the pixel buffer from WASM using safe wrapper
+                    const bufferPtr = safeWasmCall('_getPixelBuffer');
+                    if (bufferPtr) {
+                        // Get current canvas dimensions
+                        let width, height;
+                        if (aspectRatios.length === 0) {
+                            // Use default dimensions if aspect ratios aren't loaded yet
+                            width = 512;
+                            height = 320;
+                        } else {
                             const aspectRatio = aspectRatios[currentAspectRatio];
-                            const bufferSize = aspectRatio.width * aspectRatio.height * 4;
-                            
-                            // Verify imageData matches current dimensions
-                            if (imageData.width !== aspectRatio.width || imageData.height !== aspectRatio.height) {
-                                console.log('Recreating imageData for new dimensions');
-                                imageData = new ImageData(aspectRatio.width, aspectRatio.height);
-                            }
-                            
-                            // Create a Uint8Array view of the WASM memory
-                            const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, bufferSize);
-                            
-                            // Copy pixel data to ImageData
-                            imageData.data.set(buffer);
-                            
-                            // Draw to canvas
-                            const ctx = canvas.getContext('2d');
-                            ctx.putImageData(imageData, 0, 0);
-                            
-                            // Update FPS display
-                            const fpsDisplay = document.getElementById('fpsDisplay');
-                            const cppFps = Module._getCppFps ? Module._getCppFps() : 0;
-                            fpsDisplay.innerHTML = `<div>Internal FPS: ${Math.round(cppFps)}</div>`;
-                            
-                            // Update FPS overlay if visible
-                            if (fpsOverlayVisible) {
-                                const fpsOverlay = document.getElementById('fpsOverlay');
-                                fpsOverlay.innerHTML = `Internal FPS: ${Math.round(cppFps)}`;
-                            }
+                            width = aspectRatio.width;
+                            height = aspectRatio.height;
                         }
-                    } catch (error) {
-                        console.warn('Error in rendering loop:', error);
+                        const bufferSize = width * height * 4;
+                        
+                        // Verify imageData matches current dimensions
+                        if (imageData.width !== width || imageData.height !== height) {
+                            console.log('Recreating imageData for new dimensions');
+                            imageData = new ImageData(width, height);
+                        }
+                        
+                        // Create a Uint8Array view of the WASM memory
+                        const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, bufferSize);
+                        
+                        // Copy pixel data to ImageData
+                        imageData.data.set(buffer);
+                        
+                        // Draw to canvas
+                        const ctx = canvas.getContext('2d');
+                        ctx.putImageData(imageData, 0, 0);
+                        
+                        // Update FPS display
+                        const fpsDisplay = document.getElementById('fpsDisplay');
+                        const cppFps = safeWasmCallWithDefault('_getCppFps', 0);
+                        fpsDisplay.innerHTML = `<div>Internal FPS: ${Math.round(cppFps)}</div>`;
+                        
+                        // Update FPS overlay if visible
+                        if (fpsOverlayVisible) {
+                            const fpsOverlay = document.getElementById('fpsOverlay');
+                            fpsOverlay.innerHTML = `Internal FPS: ${Math.round(cppFps)}`;
+                        }
                     }
                 }
                 
@@ -891,59 +911,54 @@
             console.log('Module object:', Module);
             console.log('Module._initDemo:', Module._initDemo);
             
-            if (Module && Module._initDemo) {
-                try {
-                    Module._initDemo();
-                    // If we get here, the main loop started successfully
+            if (!wasmInitialized) {
+                console.error('WASM module not initialized');
+                return;
+            }
+            
+            try {
+                // Call _initDemo directly (not through safe wrapper) to handle unwind properly
+                Module._initDemo();
+                // If we get here, the main loop started successfully
+                isRunning = true;
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                
+                console.log('Demo started successfully');
+            } catch (error) {
+                // "unwind" is expected when starting the main loop
+                if (error === 'unwind') {
+                    console.log('Main loop started (unwind is expected)');
                     isRunning = true;
                     
                     document.getElementById('startBtn').disabled = true;
                     document.getElementById('pauseBtn').disabled = false;
                     
-                    console.log('Demo started successfully');
-                } catch (error) {
-                    // "unwind" is expected when starting the main loop
-                    if (error === 'unwind') {
-                        console.log('Main loop started (unwind is expected)');
-                        isRunning = true;
-                        
-                        document.getElementById('startBtn').disabled = true;
-                        document.getElementById('pauseBtn').disabled = false;
-                        
-                        // Start the JavaScript rendering loop
-                        startRenderingLoop();
-                        
-                        // Update render mode display
-                        updateRenderModeDisplay();
-                        
-                        // Update button states
-                        if (Module && Module._getRenderMode) {
-                            const currentMode = Module._getRenderMode();
-                            updateRenderModeButtons(currentMode);
-                        }
-                        
-                        // Initialize aspect ratio in WASM now that it's fully ready
-                        if (Module && Module._changeAspectRatio) {
-                            try {
-                                Module._changeAspectRatio(currentAspectRatio);
-                                console.log(`WASM aspect ratio initialized to ${aspectRatios[currentAspectRatio].name}`);
-                            } catch (error) {
-                                console.warn('Failed to initialize WASM aspect ratio:', error);
-                            }
-                        }
-                        
-                        // Update resolution display
-                        updateResolutionDisplay();
-                        
-                    } else {
-                        console.error('Error starting demo:', error);
-                        isRunning = false;
-                        document.getElementById('startBtn').disabled = false;
-                        document.getElementById('pauseBtn').disabled = true;
+                    // Start the JavaScript rendering loop
+                    startRenderingLoop();
+                    
+                    // Update render mode display
+                    updateRenderModeDisplay();
+                    
+                    // Update button states
+                    const currentMode = safeWasmCallWithDefault('_getRenderMode', 0);
+                    updateRenderModeButtons(currentMode);
+                    
+                    // Initialize aspect ratio in WASM now that it's fully ready
+                    if (safeWasmCall('_changeAspectRatio', currentAspectRatio) !== null) {
+                        console.log(`WASM aspect ratio initialized to ${aspectRatios[currentAspectRatio].name}`);
                     }
+                    
+                    // Update resolution display
+                    updateResolutionDisplay();
+                    
+                } else {
+                    console.error('Error starting demo:', error);
+                    isRunning = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
                 }
-            } else {
-                console.error('Module or _initDemo not available');
             }
         }
 
@@ -953,13 +968,7 @@
             // Stop the rendering loop first
             stopRenderingLoop();
             
-            if (Module && Module._stopDemo) {
-                try {
-                    Module._stopDemo();
-                } catch (error) {
-                    console.error('Error stopping demo:', error);
-                }
-            }
+            safeWasmCall('_stopDemo');
             
             isRunning = false;
             
@@ -972,67 +981,52 @@
         function pauseDemo() {
             console.log('pauseDemo called, isPaused:', isPaused);
             
-            if (Module && Module._pauseDemo) {
-                try {
-                    Module._pauseDemo();
-                    isPaused = true;
-                    
-                    document.getElementById('pauseBtn').disabled = true;
-                    document.getElementById('startBtn').disabled = false;
-                    
-                    console.log('Demo paused');
-                } catch (error) {
-                    console.error('Error pausing demo:', error);
-                }
+            if (safeWasmCall('_pauseDemo') !== null) {
+                isPaused = true;
+                
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('startBtn').disabled = false;
+                
+                console.log('Demo paused');
             }
         }
 
         function resumeDemo() {
             console.log('resumeDemo called, isPaused:', isPaused);
             
-            if (Module && Module._resumeDemo) {
-                try {
-                    Module._resumeDemo();
-                    isPaused = false;
-                    
-                    document.getElementById('startBtn').disabled = true;
-                    document.getElementById('pauseBtn').disabled = false;
-                    
-                    console.log('Demo resumed');
-                } catch (error) {
-                    console.error('Error resuming demo:', error);
-                }
+            if (safeWasmCall('_resumeDemo') !== null) {
+                isPaused = false;
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                
+                console.log('Demo resumed');
             }
         }
 
         function resetDemo() {
-            if (Module && Module._resetDemo) {
-                Module._resetDemo();
-                
-                console.log('Demo reset');
-            }
+            safeWasmCall('_resetDemo');
+            console.log('Demo reset');
         }
         
         function updateRenderModeDisplay() {
-            if (Module && Module._getRenderMode && Module._getRenderModeName) {
-                const mode = Module._getRenderMode();
-                const modeNamePtr = Module._getRenderModeName(mode);
-                let modeName = 'Unknown';
-                if (modeNamePtr) {
-                    modeName = Module.UTF8ToString(modeNamePtr);
+            if (!wasmInitialized) return;
+            
+            const mode = safeWasmCallWithDefault('_getRenderMode', 0);
+            const modeNamePtr = safeWasmCall('_getRenderModeName', mode);
+            let modeName = 'Unknown';
+            if (modeNamePtr) {
+                modeName = Module.UTF8ToString(modeNamePtr);
+            }
+            
+            const infoElement = document.getElementById('infoText');
+            if (infoElement) {
+                let baseInfo = 'Effect information not available';
+                const infoTextPtr = safeWasmCall('_getEffectInfo');
+                if (infoTextPtr) {
+                    baseInfo = Module.UTF8ToString(infoTextPtr);
                 }
-                
-                const infoElement = document.getElementById('infoText');
-                if (infoElement) {
-                    let baseInfo = 'Effect information not available';
-                    if (Module._getEffectInfo) {
-                        const infoTextPtr = Module._getEffectInfo();
-                        if (infoTextPtr) {
-                            baseInfo = Module.UTF8ToString(infoTextPtr);
-                        }
-                    }
-                    infoElement.innerHTML = `${baseInfo} (Current: ${modeName})`;
-                }
+                infoElement.innerHTML = `${baseInfo} (Current: ${modeName})`;
             }
         }
         
@@ -1061,63 +1055,55 @@
         }
         
         function changeResolution(operation) {
-            if (!Module || !Module._doubleResolution || !Module._halfResolution) {
-                console.warn('Resolution control functions not available');
+            if (!wasmInitialized) {
+                console.warn('WASM module not initialized for resolution change');
                 return;
             }
             
-            try {
-                if (operation === 'double') {
-                    Module._doubleResolution();
-                } else if (operation === 'half') {
-                    Module._halfResolution();
-                }
+            if (operation === 'double') {
+                safeWasmCall('_doubleResolution');
+            } else if (operation === 'half') {
+                safeWasmCall('_halfResolution');
+            }
+            
+            // Reload aspect ratios to get updated dimensions
+            loadAspectRatios();
+            
+            // Update canvas size
+            const canvas = document.getElementById('canvas');
+            if (canvas && aspectRatios.length > 0) {
+                const ratio = aspectRatios[currentAspectRatio];
+                canvas.width = ratio.width;
+                canvas.height = ratio.height;
                 
-                // Reload aspect ratios to get updated dimensions
-                loadAspectRatios();
+                // Recreate imageData with new dimensions
+                imageData = new ImageData(ratio.width, ratio.height);
+                console.log('Resolution changed, new canvas size:', ratio.width, 'x', ratio.height);
                 
-                // Update canvas size
-                const canvas = document.getElementById('canvas');
-                if (canvas && aspectRatios.length > 0) {
-                    const ratio = aspectRatios[currentAspectRatio];
-                    canvas.width = ratio.width;
-                    canvas.height = ratio.height;
-                    
-                    // Recreate imageData with new dimensions
-                    imageData = new ImageData(ratio.width, ratio.height);
-                    console.log('Resolution changed, new canvas size:', ratio.width, 'x', ratio.height);
-                    
-                    // Update resolution display
-                    updateResolutionDisplay();
-                    
-                    // If currently running, restart the rendering loop
-                    if (isRunning) {
-                        stopRenderingLoop();
-                        setTimeout(() => {
-                            startRenderingLoop();
-                        }, 50);
-                    }
+                // Update resolution display
+                updateResolutionDisplay();
+                
+                // If currently running, restart the rendering loop
+                if (isRunning) {
+                    stopRenderingLoop();
+                    setTimeout(() => {
+                        startRenderingLoop();
+                    }, 50);
                 }
-            } catch (error) {
-                console.error('Error changing resolution:', error);
             }
         }
         
         function updateResolutionDisplay() {
-            if (!Module || !Module._getCurrentResolution) {
+            if (!wasmInitialized) {
                 return;
             }
             
-            try {
-                const width = Module._getCurrentResolution();
-                const height = Module._getCanvasHeight ? Module._getCanvasHeight() : 320;
-                const resolutionHeadline = document.getElementById('resolutionHeadline');
-                
-                if (resolutionHeadline) {
-                    resolutionHeadline.textContent = `Resolution: ${width}x${height}`;
-                }
-            } catch (error) {
-                console.warn('Failed to update resolution display:', error);
+            const width = safeWasmCallWithDefault('_getCurrentResolution', 512);
+            const height = safeWasmCallWithDefault('_getCanvasHeight', 320);
+            const resolutionHeadline = document.getElementById('resolutionHeadline');
+            
+            if (resolutionHeadline) {
+                resolutionHeadline.textContent = `Resolution: ${width}x${height}`;
             }
         }
     </script>
