@@ -34,76 +34,89 @@
             image-rendering: crisp-edges;
         }
 
-        .controls {
+        /* Side Panel System */
+        .side-panel {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 0;
+            left: 0;
             z-index: 1000;
+            width: 340px;
+            height: 100vh;
             display: flex;
-            gap: 10px;
+            transform: translateX(-320px);
+            transition: all 0.3s ease;
+        }
+
+        .side-panel.active {
+            transform: translateX(0);
+        }
+
+        .panel-content {
+            width: 320px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel-tab {
+            width: 20px;
+            height: 120px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            align-self: center;
+        }
+
+        .panel-tab:hover {
+            background: rgba(40, 40, 40, 0.9);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-section {
+            margin-bottom: 25px;
+        }
+
+        .menu-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .menu-section h3 {
+            color: #4CAF50;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .menu-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-controls.horizontal {
+            flex-direction: row;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: rgba(76, 175, 80, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            backdrop-filter: blur(10px);
-        }
-
-        button:hover {
-            background: rgba(69, 160, 73, 0.9);
-        }
-
-        button:disabled {
-            background: rgba(102, 102, 102, 0.8);
-            cursor: not-allowed;
-        }
-
-        .info {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        .fps-display {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            color: white;
-            font-size: 16px;
-            font-family: monospace;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 4px;
-            backdrop-filter: blur(10px);
-        }
-
-        .render-mode-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
-            flex-direction: column;
-        }
-
-        .render-mode-btn {
-            padding: 12px 16px;
-            background: rgba(33, 150, 243, 0.8);
             color: white;
             border: none;
             border-radius: 6px;
@@ -111,13 +124,27 @@
             font-size: 14px;
             font-weight: 500;
             backdrop-filter: blur(10px);
-            min-width: 120px;
             transition: all 0.2s ease;
+            min-width: 80px;
+        }
+
+        button:hover {
+            background: rgba(69, 160, 73, 0.9);
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: rgba(102, 102, 102, 0.8);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .render-mode-btn {
+            background: rgba(33, 150, 243, 0.8);
         }
 
         .render-mode-btn:hover {
             background: rgba(30, 136, 229, 0.9);
-            transform: translateY(-1px);
         }
 
         .render-mode-btn.active {
@@ -125,47 +152,54 @@
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
-        .render-mode-btn.active:hover {
-            background: rgba(69, 160, 73, 0.9);
+        .info-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.4;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .fps-display {
+            color: white;
+            font-size: 14px;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
-            .render-mode-controls {
-                bottom: 10px;
-                right: 10px;
-                gap: 8px;
+            .side-panel {
+                width: 300px;
+                transform: translateX(-280px);
             }
 
-            .render-mode-btn {
-                padding: 14px 18px;
-                font-size: 16px;
-                min-width: 140px;
+            .panel-content {
+                width: 280px;
             }
 
-            .controls {
-                top: 10px;
-                left: 10px;
-                gap: 8px;
+            .panel-tab {
+                width: 18px;
+                height: 100px;
+            }
+
+            .menu-section h3 {
+                font-size: 14px;
             }
 
             button {
                 padding: 12px 16px;
-                font-size: 14px;
+                font-size: 16px;
+                min-width: 100px;
             }
 
-            .info {
-                bottom: 10px;
-                left: 10px;
-                font-size: 12px;
-                padding: 8px;
-            }
-
-            .fps-display {
-                top: 10px;
-                right: 10px;
-                font-size: 14px;
-                padding: 8px;
+            .menu-controls.horizontal {
+                flex-direction: column;
             }
         }
     </style>
@@ -173,129 +207,161 @@
 <body>
     <canvas id="canvas" width="512" height="320"></canvas>
 
-    <div class="controls">
-        <button id="startBtn">Start</button>
-        <button id="stopBtn" disabled>Stop</button>
-        <button id="resetBtn">Reset</button>
-    </div>
+    <div class="side-panel" id="sidePanel">
+        <div class="panel-content">
+            <div class="menu-section">
+                <h3>Controls</h3>
+                <div class="menu-controls horizontal">
+                    <button id="startBtn">Play</button>
+                    <button id="pauseBtn" disabled>Pause</button>
+                    <button id="resetBtn">Reset</button>
+                </div>
+            </div>
 
-    <div class="fps-display" id="fpsDisplay">
-        <div>C++ FPS: 0</div>
-    </div>
+            <div class="menu-section">
+                <h3>Explosion Style</h3>
+                <div class="menu-controls" id="renderModeControls">
+                    <button id="classicBtn" class="render-mode-btn active">Classic</button>
+                    <button id="ringsBtn" class="render-mode-btn">Rings</button>
+                    <button id="burstBtn" class="render-mode-btn">Burst</button>
+                    <button id="doubleBtn" class="render-mode-btn">Double</button>
+                </div>
+            </div>
 
-    <div class="info">
-        <p>Fireworks - Press 1-4 to switch explosion styles (Current: Classic)</p>
-    </div>
+            <div class="menu-section">
+                <h3>Performance</h3>
+                <div class="fps-display" id="fpsDisplay">
+                    <div>C++ FPS: 0</div>
+                </div>
+            </div>
 
-    <div class="render-mode-controls">
-        <button id="classicBtn" class="render-mode-btn active">Classic</button>
-        <button id="ringsBtn" class="render-mode-btn">Rings</button>
-        <button id="burstBtn" class="render-mode-btn">Burst</button>
-        <button id="doubleBtn" class="render-mode-btn">Double</button>
+            <div class="menu-section">
+                <h3>Info</h3>
+                <div class="info-text" id="infoText">
+                    Particle-based fireworks with rockets, explosions, gravity, and trails. Press 1-4 to switch styles.
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-tab" id="panelTab"></div>
     </div>
 
     <script src="fireworks.js"></script>
     <script>
-        let wasmModule = null;
         let isRunning = false;
-        let pixelBuffer = null;
+        let isPaused = false;
         let imageData = null;
+        let menuOpen = false;
         const modeNames = ['Classic', 'Rings', 'Burst', 'Double'];
 
-        window.addEventListener('load', async () => {
-            console.log('Page loaded, setting up WASM module...');
-            try {
-                if (Module && Module._initDemo) {
-                    console.log('WASM module already initialized');
-                    setupDemo();
-                } else {
-                    Module.onRuntimeInitialized = function() {
-                        console.log('WASM module initialized');
-                        setupDemo();
-                    };
-                }
-
-                function setupDemo() {
-                    console.log('Available functions:', Object.keys(Module).filter(key => key.startsWith('_')));
-
-                    const canvas = document.getElementById('canvas');
-                    const startBtn = document.getElementById('startBtn');
-                    const stopBtn = document.getElementById('stopBtn');
-                    const resetBtn = document.getElementById('resetBtn');
-                    const classicBtn = document.getElementById('classicBtn');
-                    const ringsBtn = document.getElementById('ringsBtn');
-                    const burstBtn = document.getElementById('burstBtn');
-                    const doubleBtn = document.getElementById('doubleBtn');
-                    const modeButtons = [classicBtn, ringsBtn, burstBtn, doubleBtn];
-
-                    startBtn.addEventListener('click', () => {
-                        if (!isRunning) {
-                            startDemo();
-                        }
-                    });
-
-                    stopBtn.addEventListener('click', () => {
-                        if (isRunning) {
-                            stopDemo();
-                        }
-                    });
-
-                    resetBtn.addEventListener('click', () => {
-                        resetDemo();
-                    });
-
-                    modeButtons.forEach((btn, index) => {
-                        btn.addEventListener('click', () => {
-                            if (Module && Module._setRenderMode) {
-                                Module._setRenderMode(index);
-                                updateRenderModeDisplay();
-                                updateRenderModeButtons(index);
-                            }
-                        });
-                    });
-
-                    document.addEventListener('keydown', (e) => {
-                        const keyNum = parseInt(e.key);
-                        if (keyNum >= 1 && keyNum <= 4) {
-                            const modeIndex = keyNum - 1;
-                            if (Module && Module._setRenderMode) {
-                                Module._setRenderMode(modeIndex);
-                                updateRenderModeDisplay();
-                                updateRenderModeButtons(modeIndex);
-                            }
-                        }
-                    });
-
-                    console.log('WASM module loaded successfully');
-
-                    const ctx = canvas.getContext('2d');
-                    imageData = ctx.createImageData(canvas.width, canvas.height);
-
-                    console.log('Setup complete, ready for user to start demo');
-                }
-
-            } catch (error) {
-                console.error('Failed to load WASM module:', error);
-                document.body.innerHTML = '<h1>Error loading WASM module</h1><p>Please make sure fireworks.wasm is built and available.</p>';
-            }
+        window.addEventListener('load', () => {
+            Module.onRuntimeInitialized = function() {
+                console.log('WASM runtime ready, auto-starting demo');
+                setupDemo();
+            };
 
             setTimeout(() => {
                 if (!Module || !Module._initDemo) {
-                    console.error('WASM module not loaded after 5 seconds');
-                    const startBtn = document.getElementById('startBtn');
-                    if (startBtn) {
-                        startBtn.disabled = false;
-                        startBtn.addEventListener('click', () => {
-                            alert('WASM module failed to load. Please check the console for errors.');
-                        });
-                    }
+                    console.error('WASM module failed to initialize');
                 }
             }, 5000);
         });
 
+        function setupDemo() {
+            const canvas = document.getElementById('canvas');
+            const panelTab = document.getElementById('panelTab');
+            const sidePanel = document.getElementById('sidePanel');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const modeButtons = [
+                document.getElementById('classicBtn'),
+                document.getElementById('ringsBtn'),
+                document.getElementById('burstBtn'),
+                document.getElementById('doubleBtn')
+            ];
+
+            // Panel toggle
+            panelTab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuOpen = !menuOpen;
+                sidePanel.classList.toggle('active', menuOpen);
+            });
+
+            // Close panel when clicking outside
+            document.addEventListener('click', (e) => {
+                if (menuOpen && !sidePanel.contains(e.target)) {
+                    menuOpen = false;
+                    sidePanel.classList.remove('active');
+                }
+            });
+
+            // Control buttons
+            startBtn.addEventListener('click', () => {
+                if (isPaused) {
+                    resumeDemo();
+                } else if (!isRunning) {
+                    startDemo();
+                }
+            });
+
+            pauseBtn.addEventListener('click', () => {
+                if (isRunning && !isPaused) {
+                    pauseDemo();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                if (Module && Module._resetDemo) {
+                    Module._resetDemo();
+                }
+            });
+
+            // Mode buttons
+            modeButtons.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    if (Module && Module._setRenderMode) {
+                        Module._setRenderMode(index);
+                        updateModeButtons(index);
+                    }
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                const keyNum = parseInt(e.key);
+                if (keyNum >= 1 && keyNum <= 4) {
+                    const modeIndex = keyNum - 1;
+                    if (Module && Module._setRenderMode) {
+                        Module._setRenderMode(modeIndex);
+                        updateModeButtons(modeIndex);
+                    }
+                }
+            });
+
+            // Initialize imageData
+            const ctx = canvas.getContext('2d');
+            imageData = ctx.createImageData(canvas.width, canvas.height);
+
+            // Auto-start the demo
+            startDemo();
+        }
+
+        function updateModeButtons(activeMode) {
+            const buttons = ['classicBtn', 'ringsBtn', 'burstBtn', 'doubleBtn'];
+            buttons.forEach((btnId, index) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.toggle('active', index === activeMode);
+                }
+            });
+        }
+
         let renderingLoopId = null;
 
         function startRenderingLoop() {
+            const canvas = document.getElementById('canvas');
+
             function renderFrame() {
                 if (!isRunning) return;
 
@@ -314,7 +380,7 @@
                             fpsDisplay.innerHTML = `<div>C++ FPS: ${Math.round(cppFps)}</div>`;
                         }
                     } catch (error) {
-                        console.warn('Error in rendering loop:', error);
+                        console.warn('Render error:', error);
                     }
                 }
 
@@ -332,98 +398,51 @@
         }
 
         function startDemo() {
-            console.log('startDemo called, isRunning:', isRunning);
-
             if (Module && Module._initDemo) {
                 try {
                     Module._initDemo();
                     isRunning = true;
-
+                    isPaused = false;
                     document.getElementById('startBtn').disabled = true;
-                    document.getElementById('stopBtn').disabled = false;
-
-                    console.log('Demo started successfully');
+                    document.getElementById('pauseBtn').disabled = false;
                 } catch (error) {
                     if (error === 'unwind') {
-                        console.log('Main loop started (unwind is expected)');
                         isRunning = true;
-
+                        isPaused = false;
                         document.getElementById('startBtn').disabled = true;
-                        document.getElementById('stopBtn').disabled = false;
-
+                        document.getElementById('pauseBtn').disabled = false;
                         startRenderingLoop();
-                        updateRenderModeDisplay();
-
-                        if (Module && Module._getRenderMode) {
-                            const currentMode = Module._getRenderMode();
-                            updateRenderModeButtons(currentMode);
-                        }
-
                     } else {
-                        console.error('Error starting demo:', error);
-                        isRunning = false;
-                        document.getElementById('startBtn').disabled = false;
-                        document.getElementById('stopBtn').disabled = true;
+                        console.error('Start error:', error);
                     }
                 }
-            } else {
-                console.error('Module or _initDemo not available');
             }
         }
 
-        function stopDemo() {
-            console.log('stopDemo called, isRunning:', isRunning);
-
-            stopRenderingLoop();
-
-            if (Module && Module._stopDemo) {
+        function pauseDemo() {
+            if (Module && Module._pauseDemo) {
                 try {
-                    Module._stopDemo();
+                    Module._pauseDemo();
+                    isPaused = true;
+                    document.getElementById('pauseBtn').disabled = true;
+                    document.getElementById('startBtn').disabled = false;
                 } catch (error) {
-                    console.error('Error stopping demo:', error);
-                }
-            }
-
-            isRunning = false;
-
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-
-            console.log('Demo stopped');
-        }
-
-        function resetDemo() {
-            if (Module && Module._resetDemo) {
-                Module._resetDemo();
-
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                console.log('Demo reset');
-            }
-        }
-
-        function updateRenderModeDisplay() {
-            if (Module && Module._getRenderMode) {
-                const mode = Module._getRenderMode();
-                const modeText = modeNames[mode] || 'Classic';
-                const infoElement = document.querySelector('.info p');
-                if (infoElement) {
-                    infoElement.innerHTML = `Fireworks - Press 1-4 to switch explosion styles (Current: ${modeText})`;
+                    console.error('Pause error:', error);
                 }
             }
         }
 
-        function updateRenderModeButtons(activeMode) {
-            const buttons = ['classicBtn', 'ringsBtn', 'burstBtn', 'doubleBtn'];
-            buttons.forEach((btnId, index) => {
-                const btn = document.getElementById(btnId);
-                if (btn) {
-                    btn.classList.toggle('active', index === activeMode);
+        function resumeDemo() {
+            if (Module && Module._resumeDemo) {
+                try {
+                    Module._resumeDemo();
+                    isPaused = false;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('pauseBtn').disabled = false;
+                } catch (error) {
+                    console.error('Resume error:', error);
                 }
-            });
+            }
         }
     </script>
 </body>
