@@ -152,6 +152,19 @@
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
+        .aspect-ratio-btn {
+            background: rgba(255, 152, 0, 0.8);
+        }
+
+        .aspect-ratio-btn:hover {
+            background: rgba(255, 143, 0, 0.9);
+        }
+
+        .aspect-ratio-btn.active {
+            background: rgba(76, 175, 80, 0.9);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
         .info-text {
             color: rgba(255, 255, 255, 0.8);
             font-size: 13px;
@@ -229,6 +242,23 @@
             </div>
 
             <div class="menu-section">
+                <h3>Aspect Ratio</h3>
+                <div class="menu-controls horizontal">
+                    <button id="aspect4_3Btn" class="aspect-ratio-btn">4:3</button>
+                    <button id="aspect16_10Btn" class="aspect-ratio-btn active">16:10</button>
+                    <button id="aspect10_16Btn" class="aspect-ratio-btn">10:16</button>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <h3 id="resolutionHeadline">Resolution: 512x320</h3>
+                <div class="menu-controls horizontal">
+                    <button id="halfResolutionBtn" class="aspect-ratio-btn">Half</button>
+                    <button id="doubleResolutionBtn" class="aspect-ratio-btn">Double</button>
+                </div>
+            </div>
+
+            <div class="menu-section">
                 <h3>Performance</h3>
                 <div class="fps-display" id="fpsDisplay">
                     <div>C++ FPS: 0</div>
@@ -252,7 +282,15 @@
         let isPaused = false;
         let imageData = null;
         let menuOpen = false;
+        let currentAspectRatio = 1;
         const modeNames = ['Classic', 'Rings', 'Burst', 'Double'];
+
+        // Aspect ratio configurations
+        let aspectRatios = [
+            { name: '4:3', width: 512, height: 384 },
+            { name: '16:10', width: 512, height: 320 },
+            { name: '10:16', width: 256, height: 410 }
+        ];
 
         window.addEventListener('load', () => {
             Module.onRuntimeInitialized = function() {
@@ -339,12 +377,108 @@
                 }
             });
 
+            // Aspect ratio buttons
+            document.getElementById('aspect4_3Btn').addEventListener('click', () => changeAspectRatio(0));
+            document.getElementById('aspect16_10Btn').addEventListener('click', () => changeAspectRatio(1));
+            document.getElementById('aspect10_16Btn').addEventListener('click', () => changeAspectRatio(2));
+
+            // Resolution buttons
+            document.getElementById('halfResolutionBtn').addEventListener('click', () => changeResolution('half'));
+            document.getElementById('doubleResolutionBtn').addEventListener('click', () => changeResolution('double'));
+
             // Initialize imageData
             const ctx = canvas.getContext('2d');
             imageData = ctx.createImageData(canvas.width, canvas.height);
 
+            // Load aspect ratios from WASM if available
+            loadAspectRatios();
+
             // Auto-start the demo
             startDemo();
+        }
+
+        function loadAspectRatios() {
+            try {
+                if (Module && Module._getAspectRatioCount) {
+                    const count = Module._getAspectRatioCount();
+                    if (count > 0) {
+                        aspectRatios = [];
+                        for (let i = 0; i < count; i++) {
+                            const namePtr = Module._getAspectRatioName ? Module._getAspectRatioName(i) : null;
+                            const width = Module._getAspectRatioWidth ? Module._getAspectRatioWidth(i) : 512;
+                            const height = Module._getAspectRatioHeight ? Module._getAspectRatioHeight(i) : 320;
+                            const name = namePtr ? Module.UTF8ToString(namePtr) : `Ratio ${i + 1}`;
+                            aspectRatios.push({ name, width, height });
+                        }
+                        console.log('Loaded aspect ratios from WASM:', aspectRatios);
+                    }
+                }
+            } catch (e) {
+                console.warn('Using default aspect ratios');
+            }
+            updateResolutionDisplay();
+        }
+
+        function changeAspectRatio(index) {
+            currentAspectRatio = index;
+            const canvas = document.getElementById('canvas');
+            const ratio = aspectRatios[index];
+
+            if (Module && Module._setAspectRatio) {
+                Module._setAspectRatio(index);
+            }
+
+            canvas.width = ratio.width;
+            canvas.height = ratio.height;
+            imageData = new ImageData(ratio.width, ratio.height);
+
+            updateAspectRatioButtons(index);
+            updateResolutionDisplay();
+
+            // Restart rendering loop with new dimensions
+            if (isRunning) {
+                stopRenderingLoop();
+                setTimeout(() => startRenderingLoop(), 50);
+            }
+        }
+
+        function updateAspectRatioButtons(activeIndex) {
+            const buttons = ['aspect4_3Btn', 'aspect16_10Btn', 'aspect10_16Btn'];
+            buttons.forEach((btnId, index) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.toggle('active', index === activeIndex);
+                }
+            });
+        }
+
+        function changeResolution(operation) {
+            if (operation === 'double' && Module && Module._doubleResolution) {
+                Module._doubleResolution();
+            } else if (operation === 'half' && Module && Module._halfResolution) {
+                Module._halfResolution();
+            }
+
+            loadAspectRatios();
+
+            const canvas = document.getElementById('canvas');
+            const ratio = aspectRatios[currentAspectRatio];
+            canvas.width = ratio.width;
+            canvas.height = ratio.height;
+            imageData = new ImageData(ratio.width, ratio.height);
+
+            if (isRunning) {
+                stopRenderingLoop();
+                setTimeout(() => startRenderingLoop(), 50);
+            }
+        }
+
+        function updateResolutionDisplay() {
+            const ratio = aspectRatios[currentAspectRatio];
+            const headline = document.getElementById('resolutionHeadline');
+            if (headline && ratio) {
+                headline.textContent = `Resolution: ${ratio.width}x${ratio.height}`;
+            }
         }
 
         function updateModeButtons(activeMode) {
@@ -369,7 +503,13 @@
                     try {
                         const bufferPtr = Module._getPixelBuffer();
                         if (bufferPtr) {
-                            const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, 512 * 320 * 4);
+                            const ratio = aspectRatios[currentAspectRatio];
+                            const bufferSize = ratio.width * ratio.height * 4;
+                            const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, bufferSize);
+
+                            if (imageData.width !== ratio.width || imageData.height !== ratio.height) {
+                                imageData = new ImageData(ratio.width, ratio.height);
+                            }
                             imageData.data.set(buffer);
 
                             const ctx = canvas.getContext('2d');
