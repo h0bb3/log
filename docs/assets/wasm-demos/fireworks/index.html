@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireworks - WASM Effect</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎆</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: block;
+            cursor: none;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        button:hover {
+            background: rgba(69, 160, 73, 0.9);
+        }
+
+        button:disabled {
+            background: rgba(102, 102, 102, 0.8);
+            cursor: not-allowed;
+        }
+
+        .info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .fps-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            color: white;
+            font-size: 16px;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+        }
+
+        .render-mode-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .render-mode-btn {
+            padding: 12px 16px;
+            background: rgba(33, 150, 243, 0.8);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            min-width: 120px;
+            transition: all 0.2s ease;
+        }
+
+        .render-mode-btn:hover {
+            background: rgba(30, 136, 229, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .render-mode-btn.active {
+            background: rgba(76, 175, 80, 0.9);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .render-mode-btn.active:hover {
+            background: rgba(69, 160, 73, 0.9);
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .render-mode-controls {
+                bottom: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+
+            .render-mode-btn {
+                padding: 14px 18px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+
+            .controls {
+                top: 10px;
+                left: 10px;
+                gap: 8px;
+            }
+
+            button {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .info {
+                bottom: 10px;
+                left: 10px;
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .fps-display {
+                top: 10px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="320"></canvas>
+
+    <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" disabled>Stop</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="fps-display" id="fpsDisplay">
+        <div>C++ FPS: 0</div>
+    </div>
+
+    <div class="info">
+        <p>Fireworks - Press 1-4 to switch explosion styles (Current: Classic)</p>
+    </div>
+
+    <div class="render-mode-controls">
+        <button id="classicBtn" class="render-mode-btn active">Classic</button>
+        <button id="ringsBtn" class="render-mode-btn">Rings</button>
+        <button id="burstBtn" class="render-mode-btn">Burst</button>
+        <button id="doubleBtn" class="render-mode-btn">Double</button>
+    </div>
+
+    <script src="fireworks.js"></script>
+    <script>
+        let wasmModule = null;
+        let isRunning = false;
+        let pixelBuffer = null;
+        let imageData = null;
+        const modeNames = ['Classic', 'Rings', 'Burst', 'Double'];
+
+        window.addEventListener('load', async () => {
+            console.log('Page loaded, setting up WASM module...');
+            try {
+                if (Module && Module._initDemo) {
+                    console.log('WASM module already initialized');
+                    setupDemo();
+                } else {
+                    Module.onRuntimeInitialized = function() {
+                        console.log('WASM module initialized');
+                        setupDemo();
+                    };
+                }
+
+                function setupDemo() {
+                    console.log('Available functions:', Object.keys(Module).filter(key => key.startsWith('_')));
+
+                    const canvas = document.getElementById('canvas');
+                    const startBtn = document.getElementById('startBtn');
+                    const stopBtn = document.getElementById('stopBtn');
+                    const resetBtn = document.getElementById('resetBtn');
+                    const classicBtn = document.getElementById('classicBtn');
+                    const ringsBtn = document.getElementById('ringsBtn');
+                    const burstBtn = document.getElementById('burstBtn');
+                    const doubleBtn = document.getElementById('doubleBtn');
+                    const modeButtons = [classicBtn, ringsBtn, burstBtn, doubleBtn];
+
+                    startBtn.addEventListener('click', () => {
+                        if (!isRunning) {
+                            startDemo();
+                        }
+                    });
+
+                    stopBtn.addEventListener('click', () => {
+                        if (isRunning) {
+                            stopDemo();
+                        }
+                    });
+
+                    resetBtn.addEventListener('click', () => {
+                        resetDemo();
+                    });
+
+                    modeButtons.forEach((btn, index) => {
+                        btn.addEventListener('click', () => {
+                            if (Module && Module._setRenderMode) {
+                                Module._setRenderMode(index);
+                                updateRenderModeDisplay();
+                                updateRenderModeButtons(index);
+                            }
+                        });
+                    });
+
+                    document.addEventListener('keydown', (e) => {
+                        const keyNum = parseInt(e.key);
+                        if (keyNum >= 1 && keyNum <= 4) {
+                            const modeIndex = keyNum - 1;
+                            if (Module && Module._setRenderMode) {
+                                Module._setRenderMode(modeIndex);
+                                updateRenderModeDisplay();
+                                updateRenderModeButtons(modeIndex);
+                            }
+                        }
+                    });
+
+                    console.log('WASM module loaded successfully');
+
+                    const ctx = canvas.getContext('2d');
+                    imageData = ctx.createImageData(canvas.width, canvas.height);
+
+                    console.log('Setup complete, ready for user to start demo');
+                }
+
+            } catch (error) {
+                console.error('Failed to load WASM module:', error);
+                document.body.innerHTML = '<h1>Error loading WASM module</h1><p>Please make sure fireworks.wasm is built and available.</p>';
+            }
+
+            setTimeout(() => {
+                if (!Module || !Module._initDemo) {
+                    console.error('WASM module not loaded after 5 seconds');
+                    const startBtn = document.getElementById('startBtn');
+                    if (startBtn) {
+                        startBtn.disabled = false;
+                        startBtn.addEventListener('click', () => {
+                            alert('WASM module failed to load. Please check the console for errors.');
+                        });
+                    }
+                }
+            }, 5000);
+        });
+
+        let renderingLoopId = null;
+
+        function startRenderingLoop() {
+            function renderFrame() {
+                if (!isRunning) return;
+
+                if (Module && Module._getPixelBuffer && imageData) {
+                    try {
+                        const bufferPtr = Module._getPixelBuffer();
+                        if (bufferPtr) {
+                            const buffer = new Uint8Array(Module.HEAPU8.buffer, bufferPtr, 512 * 320 * 4);
+                            imageData.data.set(buffer);
+
+                            const ctx = canvas.getContext('2d');
+                            ctx.putImageData(imageData, 0, 0);
+
+                            const fpsDisplay = document.getElementById('fpsDisplay');
+                            const cppFps = Module._getCppFps ? Module._getCppFps() : 0;
+                            fpsDisplay.innerHTML = `<div>C++ FPS: ${Math.round(cppFps)}</div>`;
+                        }
+                    } catch (error) {
+                        console.warn('Error in rendering loop:', error);
+                    }
+                }
+
+                renderingLoopId = requestAnimationFrame(renderFrame);
+            }
+
+            renderingLoopId = requestAnimationFrame(renderFrame);
+        }
+
+        function stopRenderingLoop() {
+            if (renderingLoopId) {
+                cancelAnimationFrame(renderingLoopId);
+                renderingLoopId = null;
+            }
+        }
+
+        function startDemo() {
+            console.log('startDemo called, isRunning:', isRunning);
+
+            if (Module && Module._initDemo) {
+                try {
+                    Module._initDemo();
+                    isRunning = true;
+
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+
+                    console.log('Demo started successfully');
+                } catch (error) {
+                    if (error === 'unwind') {
+                        console.log('Main loop started (unwind is expected)');
+                        isRunning = true;
+
+                        document.getElementById('startBtn').disabled = true;
+                        document.getElementById('stopBtn').disabled = false;
+
+                        startRenderingLoop();
+                        updateRenderModeDisplay();
+
+                        if (Module && Module._getRenderMode) {
+                            const currentMode = Module._getRenderMode();
+                            updateRenderModeButtons(currentMode);
+                        }
+
+                    } else {
+                        console.error('Error starting demo:', error);
+                        isRunning = false;
+                        document.getElementById('startBtn').disabled = false;
+                        document.getElementById('stopBtn').disabled = true;
+                    }
+                }
+            } else {
+                console.error('Module or _initDemo not available');
+            }
+        }
+
+        function stopDemo() {
+            console.log('stopDemo called, isRunning:', isRunning);
+
+            stopRenderingLoop();
+
+            if (Module && Module._stopDemo) {
+                try {
+                    Module._stopDemo();
+                } catch (error) {
+                    console.error('Error stopping demo:', error);
+                }
+            }
+
+            isRunning = false;
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+
+            console.log('Demo stopped');
+        }
+
+        function resetDemo() {
+            if (Module && Module._resetDemo) {
+                Module._resetDemo();
+
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                console.log('Demo reset');
+            }
+        }
+
+        function updateRenderModeDisplay() {
+            if (Module && Module._getRenderMode) {
+                const mode = Module._getRenderMode();
+                const modeText = modeNames[mode] || 'Classic';
+                const infoElement = document.querySelector('.info p');
+                if (infoElement) {
+                    infoElement.innerHTML = `Fireworks - Press 1-4 to switch explosion styles (Current: ${modeText})`;
+                }
+            }
+        }
+
+        function updateRenderModeButtons(activeMode) {
+            const buttons = ['classicBtn', 'ringsBtn', 'burstBtn', 'doubleBtn'];
+            buttons.forEach((btnId, index) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.toggle('active', index === activeMode);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
