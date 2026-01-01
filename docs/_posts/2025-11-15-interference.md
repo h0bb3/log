@@ -170,10 +170,19 @@ Sometimes constraints breed creativity. A two-color palette forces you to think 
     const modeNames = ['Add', 'If Sum > 0', 'Average', 'Pattern 1', 'Pattern 2', 'Either > 0', 'Binary OR'];
 
     window.addEventListener('load', () => {
-        Module.onRuntimeInitialized = function() {
-            console.log('WASM runtime ready');
-            setupDemo();
-        };
+        try {
+            if (Module && Module._initDemo) {
+                console.log('WASM module already initialized');
+                setupDemo();
+            } else {
+                Module.onRuntimeInitialized = function() {
+                    console.log('WASM runtime ready');
+                    setupDemo();
+                };
+            }
+        } catch (error) {
+            console.error('Error initializing WASM:', error);
+        }
 
         setTimeout(() => {
             if (!Module || !Module._initDemo) {
