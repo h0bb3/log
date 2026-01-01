@@ -393,8 +393,33 @@
             // Load aspect ratios from WASM if available
             loadAspectRatios();
 
+            // Detect best aspect ratio for this device
+            const bestRatio = detectBestAspectRatio();
+            changeAspectRatio(bestRatio);
+
             // Auto-start the demo
             startDemo();
+        }
+
+        function detectBestAspectRatio() {
+            const windowRatio = window.innerWidth / window.innerHeight;
+
+            // Available ratios: 4:3 (1.33), 16:10 (1.6), 10:16 (0.625)
+            const ratioValues = [4/3, 16/10, 10/16];
+
+            let bestMatch = 1; // Default to 16:10
+            let smallestDiff = Math.abs(windowRatio - ratioValues[1]);
+
+            for (let i = 0; i < ratioValues.length; i++) {
+                const diff = Math.abs(windowRatio - ratioValues[i]);
+                if (diff < smallestDiff) {
+                    smallestDiff = diff;
+                    bestMatch = i;
+                }
+            }
+
+            console.log(`Window ratio: ${windowRatio.toFixed(2)}, selected: ${['4:3', '16:10', '10:16'][bestMatch]}`);
+            return bestMatch;
         }
 
         function loadAspectRatios() {
