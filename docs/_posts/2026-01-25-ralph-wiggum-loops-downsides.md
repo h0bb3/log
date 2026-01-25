@@ -19,7 +19,7 @@ Let's talk about the other side.
 
 That 9-hour run with 3 agents ate 17% of my weekly Claude Code Pro tokens. In one day. Running this continuously would blow through the weekly allocation in about 2.5 days.
 
-![Claude Code usage showing 17% of weekly tokens consumed](/assets/img/ralph-usage.png)
+![Claude Code usage showing 17% of weekly tokens consumed](/log/assets/img/ralph-usage.png)
 
 The math doesn't math for sustained autonomous operation on a Pro subscription.
 
@@ -27,7 +27,7 @@ The math doesn't math for sustained autonomous operation on a Pro subscription.
 
 Here's my GitHub Actions metered usage for January:
 
-![GitHub Actions costs spiking from near-zero to $12+ on Jan 23-24](/assets/img/ralph-ci-costs.png)
+![GitHub Actions costs spiking from near-zero to $12+ on Jan 23-24](/log/assets/img/ralph-ci-costs.png)
 
 See that hockey stick? That's 71 PRs worth of CI runs. Each PR triggers tests, builds, linting. Multiply by 3 agents churning through issues and you get a $12+ spike in a day or two.
 
