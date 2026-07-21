@@ -22,7 +22,7 @@ The plan existed before the first line of code: a GDD, an implementation plan, a
 ## Monday — the blank page, and the best decision of the week
 
 ![The first ocean shader and the first procedural island, side by side](/log/assets/img/irontide-day1-pair.jpg)
-*Monday, hour one: the first ocean (still flat-shaded) and the first island, beach ring proudly terraced. It gets better.*
+*Monday, hour one: the first ocean — a simple sum-of-sines swell, plain blue, no reflections yet — and the first island, its beach ring proudly terraced. It gets better.*
 
 The first two prototypes landed twenty minutes apart: P1, a Gerstner-wave ocean shader, and P2, procedural island generation. Classic day one.
 
