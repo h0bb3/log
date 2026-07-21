@@ -10,7 +10,7 @@ Last week ended on a promise. I signed off the log with *next week: making it be
 This is the log of that one long day. It has a refactor in it that took a seven-thousand-line file apart, an editor that finally earned a name, a harvest run that went about as well as harvest runs go, and — right at the end of the watch, in the dark — the sea learning its first genuinely pretty trick. If you missed the first post, the short version is: [Iron Tide](/log/2026/07/19/one-week-at-full-sail.html) is a steampunk nautical trading RPG built almost entirely by Claude Code agents, and I mostly play admiral.
 
 ![A starter sloop steaming across open water toward a lighthouse island](/log/assets/img/irontide-w2-sea.jpg)
-*Where the week sits: a starter sloop steaming toward a lighthouse island on the open sea. The water is still last week's ocean — flat-shaded Gerstner waves — and everything today happens on top of it.*
+*Where the week sits: a starter sloop steaming toward a lighthouse island on the open sea. The water is still last week's ocean — the same Gerstner swell — and everything today happens on top of it.*
 
 ## Morning — the monolith comes apart
 
@@ -114,6 +114,6 @@ And the method keeps earning its keep in the same two ways: agents are superb at
 
 ## Where this lands
 
-The sea you're looking at in all of this is still, underneath, last week's ocean — honest flat-shaded waves doing their best. It smokes now, and rains, and glows in the dark, but the water itself hasn't changed since day one.
+The sea you're looking at in all of this is still, underneath, last week's ocean — the same honest Gerstner waves, doing their best. It smokes now, and rains, and glows in the dark, but the water itself hasn't changed since day one.
 
 That's next. The next twenty-four hours are the ones where I stop decorating the ocean and rebuild it from the wave up. **Next: the sea gets deeper.**
