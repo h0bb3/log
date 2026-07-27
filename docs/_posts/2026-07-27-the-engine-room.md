@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The Engine Room"
-date: 2026-07-27 23:30:00 +0200
+date: 2026-07-27 13:20:00 +0200
 tags: [ai, development, gamedev, rust, bevy]
 ---
 
