@@ -48,6 +48,28 @@ The interesting thing isn't that an AI wrote some camera code. It's the *shape* 
 
 I want to be precise about the human/AI split, because that's the honest interesting bit. I set the direction and the taste — what the trailer should feel like, which shots, art direction. The agent did the engineering and the execution: the API design, the Rust/Bevy systems, the tests, the shot scripting, the capture, the assembly. The art is stylized and hand-reasoned — WGSL shaders and low-poly meshes, no generated-image assets anywhere. This isn't "type a prompt, get a game." It's a human director and a very fast, very literal camera crew that will also, if you ask nicely, rebuild the camera.
 
+## The part where it trips over its own feet
+
+I want to tell on myself, because it's the most honest thing in this post and the most *characteristically-AI* thing that happened.
+
+The first cut of the trailer above had two failures so obvious they're funny. The agent had just built a scriptable camera, a creature-direction system, and a lightning-freeze — genuinely fiddly engineering — and then got the two easiest things spectacularly wrong:
+
+1. **The leviathan flew.** The `surface` flag was supposed to breach the creature *at* the waterline. I set its target height to one metre *above* the surface, so the entire twenty-metre body lifted clear of the water and it swam happily around in the open air. A sea monster, gently flapping through the sky.
+2. **The lightning became fence posts.** The whole point of the `hold` feature is to keep a bolt on screen long enough to land on video. So I held it — for *nine seconds*. All three strikes froze for the entire clip, stopped reading as lightning, and turned into bright vertical rods sticking out of the sea like someone had installed streetlights.
+
+(There was a third, softer miss: the storm shot was a flat grey ocean with no drama in the light. Shooting the same storm at dusk — dark anvil clouds over a burning horizon — fixes it. The version above is the fixed cut.)
+
+Here's why I think this pattern is worth naming, not just laughing at. The agent optimises for *"does the feature work?"* and it verified both of these — the creature *did* surface, the bolt *did* stay visible — with **screenshots**. And in a still, both look fine: a single frame of the breach is a dramatic fish; a single frame of the bolt is a lightning strike. You cannot see "the fish is flying" or "the bolt never flickers" in a still image. You can only see it in *motion*. The failure is exactly the blind spot this entire epic was about: **the agent has no eyes on the moving result.** It built the tools to give itself those eyes, then shipped the first cut without using them.
+
+So, the lessons — the ones I'm actually going to enforce:
+
+- **Review motion, not frames.** Both bugs are invisible in a screenshot and obvious in a two-second clip. Now that the recorder makes clips cheap, the verification step has to *be* a clip — watched by a human, or eventually by the agent itself.
+- **Assert against physical intuition.** "A creature above the waterline" and "a nine-second lightning bolt" violate things a five-year-old knows. A one-line check — creature depth ≥ 0, flash duration < ~1s — catches both instantly, and it's the kind of guard the agent is perfectly capable of writing *if you tell it that looking-right is a requirement, not just working.*
+- **"Works" and "looks right" are different acceptance criteria.** Unit tests proved the feature fired. They cannot prove it's convincing. That second bar needs an explicit human-taste pass — the one thing in this whole loop the agent still can't do alone.
+- **Default to conservative parameters.** Both misses were the feature dialled to an extreme — fully airborne, nine full seconds. Sane defaults (breach just cresting the surface; a third-of-a-second flash) would have made the wrong call impossible to make.
+
+That's the real state of the art, in one anecdote: an agent that will build you a camera crane and then point it at a fish flying through the sky, because nobody told it fish don't fly and it wasn't watching the tape.
+
 ## The numbers
 
 | Metric | Value |
