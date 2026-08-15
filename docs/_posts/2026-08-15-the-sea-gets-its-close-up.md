@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The Sea Gets Its Close-Up"
-date: 2026-08-15 22:30:00 +0200
+date: 2026-08-15 21:30:00 +0200
 tags: [ai, development, gamedev, rust, bevy, aigamedev]
 ---
 
